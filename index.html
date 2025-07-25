@@ -532,10 +532,15 @@
             // DEBUG: Mostra info sul foglio selezionato
             extracted.debug.push(`Foglio selezionato: "${sheetName}" con ${analisiSheet.length} righe`);
             
-            // DEBUG: Mostra le prime 3 righe per capire la struttura
+            // DEBUG: Mostra le prime 3 righe per capire la struttura - TUTTE LE COLONNE
             for (let i = 0; i < Math.min(3, analisiSheet.length); i++) {
                 if (analisiSheet[i] && analisiSheet[i].length > 0) {
-                    extracted.debug.push(`Riga ${i + 1}: ${analisiSheet[i].slice(0, 10).join(' | ')}`);
+                    // Mostra tutte le colonne dalla A alla V (indici 0-21)
+                    const rigaCompleta = analisiSheet[i].slice(0, 22).map((cell, idx) => {
+                        const lettera = String.fromCharCode(65 + idx); // A, B, C, etc.
+                        return `${lettera}:${cell || 'vuoto'}`;
+                    }).join(' | ');
+                    extracted.debug.push(`Riga ${i + 1}: ${rigaCompleta}`);
                 }
             }
 
