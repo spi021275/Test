@@ -644,27 +644,41 @@
                     venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
                     venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
                     markup: parseFloat(row[colonne.markup]) || 0,
-                    colonnaT: row[colonne.colonnaT] || '',
-                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0,
+                    colonnaT: parseFloat(row[colonne.colonnaT]) || 0, // Tratta T come numero per prezzo unitario
+                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0, // Tratta U come numero per prezzo totale
                     colonnaV: row[colonne.colonnaV] || ''
                 };
 
                 extracted.articoli.push(articolo);
             }
 
-            // Calcola TUTTI i totali e riepiloghi dettagliati
-            extracted.totaleOfferta = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
-            extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
-            extracted.marginePercentuale = extracted.totaleOfferta > 0 ? 
-                (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
+            // Calcola TUTTI i totali e riepiloghi dettagliati - FIX CALCOLI
+            let totaleQuantita = 0;
+            let totaleListino = 0;
+            let totaleCosti = 0;
+            let totaleVendita = 0;
+            let totaleColonnaU = 0;
+            let totaleMargine = 0;
 
-            // SOMME per tutte le colonne principali
-            extracted.totaleColonnaI = extracted.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0);
-            extracted.totaleColonnaJ = extracted.articoli.reduce((sum, art) => sum + art.costoUnitario, 0);
-            extracted.totaleColonnaR = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
-            extracted.totaleColonnaU = extracted.articoli.reduce((sum, art) => sum + (art.colonnaU || 0), 0);
-            extracted.totaleCostoTotale = extracted.articoli.reduce((sum, art) => sum + art.costoTotale, 0);
-            extracted.totaleQuantita = extracted.articoli.reduce((sum, art) => sum + art.quantita, 0);
+            extracted.articoli.forEach(art => {
+                totaleQuantita += art.quantita || 0;
+                totaleListino += art.listinoUnitario || 0;
+                totaleCosti += art.costoUnitario || 0;
+                totaleVendita += art.venditaTotale || 0;
+                totaleColonnaU += art.colonnaU || 0;
+                totaleMargine += art.margine || 0;
+            });
+
+            // Assegna i totali corretti
+            extracted.totaleQuantita = totaleQuantita;
+            extracted.totaleColonnaI = totaleListino;
+            extracted.totaleColonnaJ = totaleCosti;
+            extracted.totaleColonnaR = totaleVendita;
+            extracted.totaleColonnaU = totaleColonnaU;
+            extracted.margineEuro = totaleMargine;
+            extracted.totaleOfferta = totaleVendita;
+            extracted.marginePercentuale = totaleVendita > 0 ? (totaleMargine / totaleVendita * 100) : 0;
+            extracted.totaleCostoTotale = extracted.articoli.reduce((sum, art) => sum + (art.costoTotale || 0), 0);
 
             // Riepilogo per tipo articolo
             extracted.articoli.forEach(art => {
@@ -969,15 +983,15 @@
         <tbody>
             ${data.articoli.map(art => `
             <tr>
-                <td>${art.quantita}</td>
-                <td>${art.descrizioneArticolo}</td>
-                <td class="amount">€ ${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td>${art.scontoBase}</td>
+                <td>${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td class="amount">€ ${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td class="amount">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
             </tr>
             `).join('')}
             <tr class="total-row">
                 <td colspan="3" style="text-align: right;"><strong>TOTALE COMPLESSIVO:</strong></td>
-                <td class="amount"><strong>€ ${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
             </tr>
         </tbody>
     </table>
@@ -1069,7 +1083,7 @@
         <tbody>
             ${data.articoli.map((art, index) => `
             <tr>
-                <td>${art.descrizioneArticolo.substring(0, 50)}${art.descrizioneArticolo.length > 50 ? '...' : ''}</td>
+                <td>${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
@@ -1267,8 +1281,11 @@
                 <div class="bg-white border rounded-lg p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h4 class="font-medium text-gray-800">Anteprima: ${file.name}</h4>
-                        <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                        <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 mr-2">
                             Scarica File
+                        </button>
+                        <button onclick="copyFileContent(${index})" class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                            Copia Contenuto
                         </button>
                     </div>
                     <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto border">
@@ -1295,9 +1312,38 @@
             previewContainer.innerHTML = previewHTML;
         }
 
-        function downloadAllFiles() {
-            generatedFilesData.forEach((file, index) => {
-                setTimeout(() => downloadFile(index), index * 1000); // Stagger downloads
+        function copyFileContent(index) {
+            const file = generatedFilesData[index];
+            
+            let contentToCopy;
+            if (file.type === 'crm') {
+                contentToCopy = file.content; // JSON già formattato
+            } else {
+                // Rimuovi script e tag HTML per ottenere contenuto pulito per copia
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = file.content;
+                
+                // Rimuovi script tags
+                const scripts = tempDiv.querySelectorAll('script');
+                scripts.forEach(script => script.remove());
+                
+                contentToCopy = tempDiv.innerHTML;
+            }
+            
+            // Copia negli appunti
+            navigator.clipboard.writeText(contentToCopy).then(() => {
+                // Mostra feedback visivo
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copiato!';
+                button.classList.add('bg-green-800');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('bg-green-800');
+                }, 2000);
+            }).catch(err => {
+                alert('Errore nella copia: ' + err.message);
             });
         }
 
