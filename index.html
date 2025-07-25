@@ -78,7 +78,7 @@
                             </button>
                         </div>
 
-                        <!-- Module 3 - UPDATED -->
+                        <!-- Module 3 -->
                         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-green-300 transition-all">
                             <svg class="w-10 h-10 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -135,7 +135,7 @@
             </div>
         </div>
 
-        <!-- File Generator Module - UPDATED -->
+        <!-- File Generator Module -->
         <div id="fileGeneratorSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -371,7 +371,7 @@
             document.getElementById('homeBtn').classList.remove('hidden');
         }
 
-        // File Generator Functions - UPDATED
+        // File Generator Functions
         async function handleAnalysisUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -428,22 +428,20 @@
                 reader.onload = function(e) {
                     try {
                         const data = e.target.result;
-                        // Supporto per .xlsm (Excel con macro) e altri formati
                         const workbook = XLSX.read(data, { 
                             type: 'binary',
-                            cellFormulas: false, // Ignora le formule per sicurezza
-                            cellStyles: false,   // Non serve per l'estrazione dati
-                            sheetStubs: true     // Include celle vuote
+                            cellFormulas: false,
+                            cellStyles: false,
+                            sheetStubs: true
                         });
                         
                         const result = {};
                         workbook.SheetNames.forEach(sheetName => {
                             const sheet = workbook.Sheets[sheetName];
-                            // Converti in JSON con header numerico per maggiore flessibilità
                             result[sheetName] = XLSX.utils.sheet_to_json(sheet, { 
                                 header: 1,
-                                defval: '',  // Valore default per celle vuote
-                                raw: false   // Converti tutto in stringhe per parsing uniforme
+                                defval: '',
+                                raw: false
                             });
                         });
                         
@@ -480,11 +478,10 @@
             // DEBUG: Mostra tutti i fogli trovati
             extracted.debug.push(`Fogli trovati: ${Object.keys(excelData).join(', ')}`);
 
-            // Cerca il foglio "Analisi Economica" - versione più flessibile
+            // Cerca il foglio "Analisi Economica"
             let analisiSheet = null;
             let sheetName = '';
             
-            // Prima prova con nomi esatti
             const possibiliNomi = [
                 'Analisi Economica',
                 'analisi economica',
@@ -503,7 +500,6 @@
                 }
             }
 
-            // Se non trovato, cerca per contenuto parziale
             if (!analisiSheet) {
                 Object.keys(excelData).forEach(name => {
                     const nameLower = name.toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
@@ -515,7 +511,6 @@
                 });
             }
 
-            // Se ancora non trovato, usa il primo foglio disponibile
             if (!analisiSheet && Object.keys(excelData).length > 0) {
                 const primoFoglio = Object.keys(excelData)[0];
                 analisiSheet = excelData[primoFoglio];
@@ -529,58 +524,11 @@
                 return extracted;
             }
 
-            // DEBUG: Mostra info sul foglio selezionato
             extracted.debug.push(`Foglio selezionato: "${sheetName}" con ${analisiSheet.length} righe`);
-            
-            // DEBUG: Mostra TUTTE le righe dalla 3 in poi (anche quelle apparentemente vuote)
-            extracted.debug.push(`=== ANALISI COMPLETA FOGLIO (dalla riga 3) ===`);
-            extracted.debug.push(`Foglio "${sheetName}" ha ${analisiSheet.length} righe totali`);
-            
-            let righeAnalizzate = 0;
-            let righeConDescrizione = 0;
-            
-            // Scorri TUTTE le righe dalla 3 in poi
-            for (let i = 2; i < analisiSheet.length; i++) { // Riga 3 = indice 2
-                const row = analisiSheet[i];
-                righeAnalizzate++;
-                
-                // Mostra SEMPRE la riga nel debug, anche se vuota
-                if (!row || row.length === 0) {
-                    extracted.debug.push(`Riga ${i + 1}: RIGA COMPLETAMENTE VUOTA`);
-                    continue;
-                }
-                
-                // Mostra tutte le colonne A-V
-                const rigaCompleta = row.slice(0, 22).map((cell, idx) => {
-                    const lettera = String.fromCharCode(65 + idx);
-                    return `${lettera}:${cell || 'vuoto'}`;
-                }).join(' | ');
-                extracted.debug.push(`Riga ${i + 1}: ${rigaCompleta}`);
-                
-                // Controlla se ha un valore nella colonna J (Costo Unitario)
-                const costoUnitario = row[9]; // Colonna J
-                const descrizione = row[6]; // Colonna G
-                
-                if (costoUnitario && costoUnitario !== '' && costoUnitario !== 0) {
-                    righeConDescrizione++;
-                    const quantita = row[7] || '0';
-                    const venditaUnitario = row[16] || '0';
-                    const venditaTotale = row[17] || '0';
-                    const colonnaU = row[20] || 'vuoto';
-                    
-                    extracted.debug.push(`   → CON COSTO (J): €${costoUnitario} | Descr:"${descrizione}" | Qty:${quantita} | Vendita Tot:€${venditaTotale} | U:${colonnaU}`);
-                }
-                
-                extracted.debug.push(`---`);
-            }
-            
-            extracted.debug.push(`=== RIEPILOGO SCANSIONE ===`);
-            extracted.debug.push(`Righe analizzate dalla 3 in poi: ${righeAnalizzate}`);
-            extracted.debug.push(`Righe con Costo Unitario (J) trovate: ${righeConDescrizione}`);
 
-            // Definizione colonne (indici da 0)
+            // Definizione colonne (indici da 0) - CORRETTA MAPPATURA
             const colonne = {
-                sezione: 0,           // A - Sezione Descrizione Attività
+                sezione: 0,           // A - Sezione Descrizione Attività  
                 areaInteresse: 1,     // B - Area di Interesse
                 sottocategoria: 2,    // C - Sottocategoria
                 tipoArticolo: 3,      // D - Tipo Articolo
@@ -599,8 +547,8 @@
                 venditaUnitario: 16,  // Q - Vendita Unitario
                 venditaTotale: 17,    // R - Vendita Totale
                 markup: 18,           // S - MarkUp
-                colonnaT: 19,         // T - Colonna T
-                colonnaU: 20,         // U - Colonna U
+                colonnaT: 19,         // T - Colonna T (PREZZO UNITARIO per offerta)
+                colonnaU: 20,         // U - Colonna U (PREZZO TOTALE per offerta)
                 colonnaV: 21          // V - Colonna V
             };
 
@@ -608,23 +556,22 @@
             for (let i = 2; i < analisiSheet.length; i++) {
                 const row = analisiSheet[i];
                 
-                // Salta solo righe completamente vuote
                 if (!row || row.length === 0) continue;
                 
-                // CRITERIO PRINCIPALE: deve avere un valore nella colonna J (Costo Unitario)
+                // CRITERIO: deve avere un valore nella colonna J (Costo Unitario) O nella colonna I (Listino)
                 const costoUnitario = row[colonne.costoUnitario];
-                if (!costoUnitario || costoUnitario === '' || (typeof costoUnitario === 'number' && costoUnitario === 0)) {
+                const listinoUnitario = row[colonne.listinoUnitario];
+                
+                if ((!costoUnitario || costoUnitario === '' || (typeof costoUnitario === 'number' && costoUnitario === 0)) &&
+                    (!listinoUnitario || listinoUnitario === '' || (typeof listinoUnitario === 'number' && listinoUnitario === 0))) {
                     continue;
                 }
                 
-                // Prendi anche la descrizione per completezza
                 const descrizione = row[colonne.descrizioneArticolo] || `Riga ${i + 1}`;
                 
-                // Estrai TUTTO - senza filtri per totali o subtotali
-                const quantita = parseFloat(row[colonne.quantita]) || 0;
-                
+                // Estrai tutto con i valori corretti
                 const articolo = {
-                    riga: i + 1, // Numero riga Excel (base 1)
+                    riga: i + 1,
                     sezione: row[colonne.sezione] || '',
                     areaInteresse: row[colonne.areaInteresse] || '',
                     sottocategoria: row[colonne.sottocategoria] || '',
@@ -632,10 +579,10 @@
                     produttore: row[colonne.produttore] || '',
                     codiceArticolo: row[colonne.codiceArticolo] || '',
                     descrizioneArticolo: descrizione.toString().trim(),
-                    quantita: quantita,
+                    quantita: parseFloat(row[colonne.quantita]) || 0,
                     listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
-                    costoUnitario: parseFloat(costoUnitario) || 0,
-                    scontoBase: parseFloat(row[colonne.scontoBase]) || 0,
+                    costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
+                    scontoBase: parseFloat(row[colonne.scontoBase]) || 0,  // K - per quantità offerta
                     scontoAgg1: parseFloat(row[colonne.scontoAgg1]) || 0,
                     scontoAgg2: parseFloat(row[colonne.scontoAgg2]) || 0,
                     costoUnitarioFinale: parseFloat(row[colonne.costoUnitarioFinale]) || 0,
@@ -644,41 +591,28 @@
                     venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
                     venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
                     markup: parseFloat(row[colonne.markup]) || 0,
-                    colonnaT: parseFloat(row[colonne.colonnaT]) || 0, // Tratta T come numero per prezzo unitario
-                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0, // Tratta U come numero per prezzo totale
+                    colonnaT: parseFloat(row[colonne.colonnaT]) || 0,  // T - prezzo unitario per offerta
+                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0,  // U - prezzo totale per offerta
                     colonnaV: row[colonne.colonnaV] || ''
                 };
 
                 extracted.articoli.push(articolo);
             }
 
-            // Calcola TUTTI i totali e riepiloghi dettagliati - FIX CALCOLI
-            let totaleQuantita = 0;
-            let totaleListino = 0;
-            let totaleCosti = 0;
-            let totaleVendita = 0;
-            let totaleColonnaU = 0;
-            let totaleMargine = 0;
+            // CALCOLA CORRETTAMENTE I TOTALI USANDO LE COLONNE GIUSTE
+            extracted.totaleQuantita = extracted.articoli.reduce((sum, art) => sum + art.quantita, 0);
+            extracted.totaleColonnaI = extracted.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0);
+            extracted.totaleColonnaJ = extracted.articoli.reduce((sum, art) => sum + art.costoUnitario, 0);
+            extracted.totaleColonnaR = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
+            extracted.totaleColonnaT = extracted.articoli.reduce((sum, art) => sum + art.colonnaT, 0);
+            extracted.totaleColonnaU = extracted.articoli.reduce((sum, art) => sum + art.colonnaU, 0);
+            extracted.totaleCostoTotale = extracted.articoli.reduce((sum, art) => sum + art.costoTotale, 0);
 
-            extracted.articoli.forEach(art => {
-                totaleQuantita += art.quantita || 0;
-                totaleListino += art.listinoUnitario || 0;
-                totaleCosti += art.costoUnitario || 0;
-                totaleVendita += art.venditaTotale || 0;
-                totaleColonnaU += art.colonnaU || 0;
-                totaleMargine += art.margine || 0;
-            });
-
-            // Assegna i totali corretti
-            extracted.totaleQuantita = totaleQuantita;
-            extracted.totaleColonnaI = totaleListino;
-            extracted.totaleColonnaJ = totaleCosti;
-            extracted.totaleColonnaR = totaleVendita;
-            extracted.totaleColonnaU = totaleColonnaU;
-            extracted.margineEuro = totaleMargine;
-            extracted.totaleOfferta = totaleVendita;
-            extracted.marginePercentuale = totaleVendita > 0 ? (totaleMargine / totaleVendita * 100) : 0;
-            extracted.totaleCostoTotale = extracted.articoli.reduce((sum, art) => sum + (art.costoTotale || 0), 0);
+            // I TOTALI PRINCIPALI per il riepilogo
+            extracted.totaleOfferta = extracted.totaleColonnaU; // Usa colonna U come totale offerta
+            extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
+            extracted.marginePercentuale = extracted.totaleOfferta > 0 ? 
+                (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
 
             // Riepilogo per tipo articolo
             extracted.articoli.forEach(art => {
@@ -694,7 +628,7 @@
                 }
                 extracted.riepilogoPerTipo[tipo].quantita += art.quantita;
                 extracted.riepilogoPerTipo[tipo].costoTotale += art.costoTotale;
-                extracted.riepilogoPerTipo[tipo].venditaTotale += art.venditaTotale;
+                extracted.riepilogoPerTipo[tipo].venditaTotale += art.colonnaU; // Usa colonna U
                 extracted.riepilogoPerTipo[tipo].margine += art.margine;
                 extracted.riepilogoPerTipo[tipo].articoli += 1;
             });
@@ -713,7 +647,7 @@
                 }
                 extracted.riepilogoPerSezione[sezione].quantita += art.quantita;
                 extracted.riepilogoPerSezione[sezione].costoTotale += art.costoTotale;
-                extracted.riepilogoPerSezione[sezione].venditaTotale += art.venditaTotale;
+                extracted.riepilogoPerSezione[sezione].venditaTotale += art.colonnaU; // Usa colonna U
                 extracted.riepilogoPerSezione[sezione].margine += art.margine;
                 extracted.riepilogoPerSezione[sezione].articoli += 1;
             });
@@ -726,16 +660,6 @@
             
             let html = '<div class="space-y-3">';
             
-            // DEBUG INFO - mostra sempre per capire cosa succede
-            if (data.debug && data.debug.length > 0) {
-                html += `<div class="bg-yellow-50 p-3 rounded border border-yellow-200">`;
-                html += `<strong class="text-yellow-800">Debug Info:</strong><br>`;
-                data.debug.forEach(debug => {
-                    html += `• ${debug}<br>`;
-                });
-                html += `</div>`;
-            }
-            
             // Errori eventuali
             if (data.errori.length > 0) {
                 html += `<div class="bg-red-50 p-3 rounded border border-red-200">`;
@@ -746,7 +670,7 @@
                 html += `</div>`;
             }
             
-            // Dati principali estratti con TUTTI i riepiloghi
+            // Dati principali estratti - CORRETTI
             html += `<div class="bg-blue-50 p-3 rounded border">`;
             html += `<strong>Analisi Economica DSA - Riepiloghi Totali:</strong><br>`;
             html += `Articoli con Costo (J): <strong>${data.articoli.length}</strong><br>`;
@@ -754,23 +678,16 @@
             html += `Totale Listino (I): <strong>€${data.totaleColonnaI.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
             html += `Totale Costi (J): <strong>€${data.totaleColonnaJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
             html += `Totale Vendita (R): <strong>€${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
-            html += `Totale Colonna U: <strong>${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Colonna T: <strong>€${data.totaleColonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Colonna U: <strong>€${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
             html += `Margine Totale: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong><br>`;
             html += `Fogli nel File: ${data.sheets.join(', ')}`;
             html += `</div>`;
             
-            // Se non ci sono articoli, mostra un messaggio più dettagliato
             if (data.articoli.length === 0) {
                 html += `<div class="bg-orange-50 p-3 rounded border border-orange-200">`;
                 html += `<strong class="text-orange-800">Nessun articolo estratto</strong><br>`;
-                html += `Possibili cause:<br>`;
-                html += `• Il foglio non contiene dati dalle riga 3 in poi<br>`;
-                html += `• Le colonne non corrispondono alla struttura attesa<br>`;
-                html += `• I dati sono in un formato diverso<br><br>`;
-                html += `<strong>Verifica che:</strong><br>`;
-                html += `• La colonna G contenga le descrizioni degli articoli<br>`;
-                html += `• La colonna H contenga le quantità (numeri > 0)<br>`;
-                html += `• I dati inizino dalla riga 3`;
+                html += `Verifica che i dati inizino dalla riga 3 e abbiano valori nelle colonne I o J`;
                 html += `</div>`;
             }
             
@@ -784,27 +701,14 @@
                 html += `</div>`;
             }
             
-            // Riepilogo per sezione
-            if (Object.keys(data.riepilogoPerSezione).length > 0) {
-                html += `<div class="bg-purple-50 p-3 rounded border">`;
-                html += `<strong>Riepilogo per Sezione:</strong><br>`;
-                Object.entries(data.riepilogoPerSezione).slice(0, 5).forEach(([sezione, totali]) => {
-                    html += `• <strong>${sezione}</strong>: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
-                });
-                if (Object.keys(data.riepilogoPerSezione).length > 5) {
-                    html += `... e altre ${Object.keys(data.riepilogoPerSezione).length - 5} sezioni<br>`;
-                }
-                html += `</div>`;
-            }
-            
-            // Esempio articoli
+            // Esempio articoli con mappatura corretta
             if (data.articoli.length > 0) {
                 html += `<div class="bg-green-50 p-3 rounded border">`;
-                html += `<strong>Primi Articoli Estratti:</strong><br>`;
+                html += `<strong>Primi Articoli Estratti (mappatura corretta per offerta):</strong><br>`;
                 data.articoli.slice(0, 3).forEach(art => {
                     html += `• <strong>${art.descrizioneArticolo}</strong><br>`;
-                    html += `&nbsp;&nbsp;Qty: ${art.quantita}, Prezzo: €${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}, Totale: €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
-                    html += `&nbsp;&nbsp;Tipo: ${art.tipoArticolo}, Produttore: ${art.produttore}<br><br>`;
+                    html += `&nbsp;&nbsp;Qty K: ${art.scontoBase}, Descr I: €${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
+                    html += `&nbsp;&nbsp;Prezzo Unit T: €${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}, Totale U: €${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br><br>`;
                 });
                 if (data.articoli.length > 3) {
                     html += `... e altri ${data.articoli.length - 3} articoli`;
@@ -828,7 +732,6 @@
         }
 
         async function generateFiles() {
-            // Validation
             const clientName = document.getElementById('fileGenClientName').value.trim();
             if (!clientName || !analysisFile) {
                 alert('Compila il nome cliente e carica il file di analisi economica');
@@ -844,7 +747,6 @@
                 return;
             }
 
-            // Show loading
             const btn = document.getElementById('fileGenerateBtn');
             const originalText = btn.innerHTML;
             btn.innerHTML = `
@@ -874,7 +776,7 @@
                     const offerContent = await generateCommercialOffer(projectData);
                     generatedFilesData.push({
                         type: 'offer',
-                        name: `Offerta_Commerciale_${clientName.replace(/\s+/g, '_')}.docx`,
+                        name: `Offerta_Commerciale_${clientName.replace(/\s+/g, '_')}.html`,
                         content: offerContent,
                         icon: 'document',
                         color: 'blue'
@@ -885,7 +787,7 @@
                     const summaryContent = await generateExecutiveSummary(projectData);
                     generatedFilesData.push({
                         type: 'summary',
-                        name: `Sintesi_Progetto_${clientName.replace(/\s+/g, '_')}.pdf`,
+                        name: `Sintesi_Progetto_${clientName.replace(/\s+/g, '_')}.html`,
                         content: summaryContent,
                         icon: 'document-text',
                         color: 'purple'
@@ -919,10 +821,9 @@
 
         async function generateCommercialOffer(projectData) {
             const data = projectData.extractedData;
-            
-            // Genera contenuto direttamente senza API
             const dataOdierna = new Date().toLocaleDateString('it-IT');
             
+            // MAPPATURA CORRETTA: K=quantità, I=descrizione, T=prezzo unitario, U=prezzo totale
             const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -984,7 +885,7 @@
             ${data.articoli.map(art => `
             <tr>
                 <td>${art.scontoBase}</td>
-                <td>${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td>€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
             </tr>
@@ -1038,7 +939,7 @@
         async function generateExecutiveSummary(projectData) {
             const data = projectData.extractedData;
             
-            // Genera sintesi economica con solo colonne I, J, R, U
+            // Sintesi con colonna I per articolo
             const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -1069,11 +970,11 @@
         <p><strong>Articoli:</strong> ${data.articoli.length}</p>
     </div>
 
-    <h3>Dettaglio Economico (Colonne I, J, R, U)</h3>
+    <h3>Dettaglio Economico</h3>
     <table>
         <thead>
             <tr>
-                <th>Articolo</th>
+                <th>Articolo (Colonna I)</th>
                 <th>Listino Unitario (I)</th>
                 <th>Costo Unitario (J)</th>
                 <th>Vendita Totale (R)</th>
@@ -1083,11 +984,11 @@
         <tbody>
             ${data.articoli.map((art, index) => `
             <tr>
-                <td>${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td>€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td>${art.colonnaU || '-'}</td>
+                <td class="amount">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
             </tr>
             `).join('')}
             <tr class="total-row">
@@ -1095,7 +996,7 @@
                 <td class="amount"><strong>€ ${data.totaleColonnaI.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                 <td class="amount"><strong>€ ${data.totaleColonnaJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                 <td class="amount"><strong>€ ${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td class="amount"><strong>${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
             </tr>
         </tbody>
     </table>
@@ -1115,7 +1016,6 @@
         async function generateCRMFile(projectData) {
             const data = projectData.extractedData;
             
-            // Genera contenuto CSV/testo per CRM
             const crmData = {
                 cliente: projectData.cliente,
                 opportunita: `MW_${projectData.projectCode}_${new Date().getFullYear()}`,
@@ -1132,55 +1032,11 @@
                 sezioniCoperte: Object.keys(data.riepilogoPerSezione).length,
                 noteCommerciali: projectData.commercialNotes,
                 contattiCliente: projectData.clientContacts,
-                // Breakdown per tipo
-                tecnologia: data.riepilogoPerTipo['Tecnologia']?.venditaTotale || 0,
-                servizio: data.riepilogoPerTipo['Servizio']?.venditaTotale || 0,
-                manutenzione: data.riepilogoPerTipo['Manutenzione']?.venditaTotale || 0,
-                licenze: data.riepilogoPerTipo['Sottoscrizione Licenza']?.venditaTotale || 0,
-                altro: data.riepilogoPerTipo['Altro']?.venditaTotale || 0
-            };
-
-            return JSON.stringify(crmData, null, 2);
-        }
-
-        async function generateCRMFile(projectData) {
-            const data = projectData.extractedData;
-            
-            // Generate structured data for CRM with detailed breakdown
-            const crmData = {
-                // Dati base opportunità
-                cliente: projectData.cliente,
-                opportunita: `MW_${projectData.projectCode}_${new Date().getFullYear()}`,
-                dataCreazione: new Date().toISOString().split('T')[0],
-                salesManager: projectData.salesManager,
-                
-                // Dati economici
-                valoreOfferta: data.totaleOfferta,
-                margineEuro: data.margineEuro,
-                marginePercentuale: data.marginePercentuale.toFixed(2),
-                
-                // Configurazione offerta  
-                scadenzaOfferta: projectData.offerExpiry,
-                modalitaPagamento: projectData.paymentTerms,
-                priorita: projectData.projectPriority,
-                stato: 'Proposta Inviata',
-                
-                // Breakdown per tipo
                 tecnologia: data.riepilogoPerTipo['Tecnologia']?.venditaTotale || 0,
                 servizio: data.riepilogoPerTipo['Servizio']?.venditaTotale || 0,
                 manutenzione: data.riepilogoPerTipo['Manutenzione']?.venditaTotale || 0,
                 licenze: data.riepilogoPerTipo['Sottoscrizione Licenza']?.venditaTotale || 0,
                 altro: data.riepilogoPerTipo['Altro']?.venditaTotale || 0,
-                
-                // Statistiche
-                articoliTotali: data.articoli.length,
-                sezioniCoperte: Object.keys(data.riepilogoPerSezione).length,
-                
-                // Note e contatti
-                noteCommerciali: projectData.commercialNotes,
-                contattiCliente: projectData.clientContacts,
-                
-                // Dettaglio sezioni principali (top 5)
                 sezioniPrincipali: Object.entries(data.riepilogoPerSezione)
                     .sort((a, b) => b[1].venditaTotale - a[1].venditaTotale)
                     .slice(0, 5)
@@ -1198,7 +1054,6 @@
             const filesList = document.getElementById('filesList');
             const filesPreview = document.getElementById('filesPreview');
             
-            // Files list
             let filesHTML = '';
             generatedFilesData.forEach((file, index) => {
                 const iconPath = getIconPath(file.icon);
@@ -1213,6 +1068,9 @@
                             <button onclick="downloadFile(${index})" class="flex-1 px-3 py-2 bg-${file.color}-600 text-white text-xs rounded hover:bg-${file.color}-700">
                                 Download
                             </button>
+                            <button onclick="copyFileContent(${index})" class="flex-1 px-3 py-2 bg-gray-600 text-white text-xs rounded hover:bg-gray-700">
+                                Copia
+                            </button>
                             <button onclick="previewFile(${index})" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
                                 Anteprima
                             </button>
@@ -1223,7 +1081,6 @@
             
             filesList.innerHTML = filesHTML;
             
-            // Auto-show preview of first file to verify it's working
             if (generatedFilesData.length > 0) {
                 setTimeout(() => previewFile(0), 500);
             }
@@ -1253,7 +1110,6 @@
             let mimeType, dataUrl;
             
             if (file.type === 'crm') {
-                // JSON to Excel conversion
                 const ws = XLSX.utils.json_to_sheet([JSON.parse(file.content)]);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "CRM_Data");
@@ -1261,7 +1117,6 @@
                 const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 dataUrl = URL.createObjectURL(blob);
             } else {
-                // HTML content
                 const blob = new Blob([file.content], { type: 'text/html' });
                 dataUrl = URL.createObjectURL(blob);
             }
@@ -1273,6 +1128,27 @@
             URL.revokeObjectURL(dataUrl);
         }
 
+        function copyFileContent(index) {
+            const file = generatedFilesData[index];
+            
+            navigator.clipboard.writeText(file.content).then(() => {
+                // Show success feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copiato!';
+                btn.classList.add('bg-green-600');
+                btn.classList.remove('bg-gray-600');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('bg-green-600');
+                    btn.classList.add('bg-gray-600');
+                }, 2000);
+            }).catch(err => {
+                alert('Errore nella copia: ' + err.message);
+            });
+        }
+
         function previewFile(index) {
             const file = generatedFilesData[index];
             const previewContainer = document.getElementById('filesPreview');
@@ -1281,12 +1157,14 @@
                 <div class="bg-white border rounded-lg p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h4 class="font-medium text-gray-800">Anteprima: ${file.name}</h4>
-                        <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 mr-2">
-                            Scarica File
-                        </button>
-                        <button onclick="copyFileContent(${index})" class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                            Copia Contenuto
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="copyFileContent(${index})" class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700">
+                                Copia Contenuto
+                            </button>
+                            <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                Scarica File
+                            </button>
+                        </div>
                     </div>
                     <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto border">
             `;
@@ -1299,7 +1177,6 @@
                     previewHTML += '<p class="text-red-600">Errore nel parsing JSON del file CRM</p>';
                 }
             } else {
-                // Show HTML content with proper formatting
                 const cleanContent = file.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
                 previewHTML += `<div class="prose max-w-none">${cleanContent.substring(0, 3000)}${file.content.length > 3000 ? '<p><em>... contenuto troncato per anteprima ...</em></p>' : ''}</div>`;
             }
@@ -1312,43 +1189,13 @@
             previewContainer.innerHTML = previewHTML;
         }
 
-        function copyFileContent(index) {
-            const file = generatedFilesData[index];
-            
-            let contentToCopy;
-            if (file.type === 'crm') {
-                contentToCopy = file.content; // JSON già formattato
-            } else {
-                // Rimuovi script e tag HTML per ottenere contenuto pulito per copia
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = file.content;
-                
-                // Rimuovi script tags
-                const scripts = tempDiv.querySelectorAll('script');
-                scripts.forEach(script => script.remove());
-                
-                contentToCopy = tempDiv.innerHTML;
-            }
-            
-            // Copia negli appunti
-            navigator.clipboard.writeText(contentToCopy).then(() => {
-                // Mostra feedback visivo
-                const button = event.target;
-                const originalText = button.textContent;
-                button.textContent = 'Copiato!';
-                button.classList.add('bg-green-800');
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.classList.remove('bg-green-800');
-                }, 2000);
-            }).catch(err => {
-                alert('Errore nella copia: ' + err.message);
+        function downloadAllFiles() {
+            generatedFilesData.forEach((file, index) => {
+                setTimeout(() => downloadFile(index), index * 1000);
             });
         }
 
         function resetFileGenerator() {
-            // Reset all form fields
             document.getElementById('fileGenClientName').value = '';
             document.getElementById('projectCode').value = '';
             document.getElementById('salesManager').value = '';
@@ -1358,63 +1205,26 @@
             document.getElementById('paymentTerms').value = '';
             document.getElementById('projectPriority').value = 'standard';
             
-            // Reset checkboxes
             document.getElementById('generateOffer').checked = true;
             document.getElementById('generateSummary').checked = true;
             document.getElementById('generateCRM').checked = true;
             
-            // Reset file state
             removeAnalysisFile();
             generatedFilesData = [];
             
-            // Show form, hide results
             document.getElementById('fileGeneratorForm').classList.remove('hidden');
             document.getElementById('generatedFiles').classList.add('hidden');
         }
 
-        // Call Gemini API
-        async function callGeminiAPI(prompt) {
-            const modelName = "gemini-2.5-pro";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-
-            const requestBody = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-            };
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody),
-            });
-            
-            if (!response.ok) {
-                throw new Error(`API Error (${response.status}): ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            
-            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-                let rawText = result.candidates[0].content.parts[0].text;
-                return rawText.replace(/^\s*```(html)?\n?/, '').replace(/\n?```\s*$/, '');
-            } else {
-                throw new Error("Risposta AI non nel formato atteso.");
-            }
-        }
-
-        // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            // Set default view
             showIntro();
             
-            // Add click handler for home button
             document.getElementById('homeBtn').addEventListener('click', showIntro);
             
-            // Set default dates
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 30);
             document.getElementById('offerExpiry').value = tomorrow.toISOString().split('T')[0];
             
-            // Disable generate button initially
             document.getElementById('fileGenerateBtn').disabled = true;
         });
     </script>
