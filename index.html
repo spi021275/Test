@@ -862,7 +862,7 @@
         async function generateCommercialOffer(projectData) {
             const data = projectData.extractedData;
             
-            const prompt = `Genera un'offerta commerciale professionale in formato HTML per Var Group - Multimedia & Workspaces.
+            const prompt = `Genera un'offerta commerciale professionale in formato HTML che replica ESATTAMENTE il layout del documento Var Group allegato.
 
 DATI PROGETTO:
 Cliente: ${projectData.cliente}
@@ -872,38 +872,36 @@ Scadenza Offerta: ${projectData.offerExpiry}
 Modalità Pagamento: ${projectData.paymentTerms}
 Note Commerciali: ${projectData.commercialNotes}
 
-DATI ECONOMICI:
+DATI ECONOMICI ESTRATTI:
 Totale Offerta: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
 Margine: €${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)
 Articoli Totali: ${data.articoli.length}
 
-RIEPILOGO PER TIPO ARTICOLO:
-${Object.entries(data.riepilogoPerTipo).map(([tipo, totali]) => 
-    `- ${tipo}: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
+STRUTTURA OFFERTA (replica del template Var Group):
+1. HEADER: Logo Var Group + indirizzo + data + destinatario
+2. OGGETTO: Refresh tecnologico [descrizione progetto]
+3. INTRODUZIONE: Breve paragrafo di presentazione
+4. TABELLA ARTICOLI con colonne: Q.tà | Descrizione | Prezzo unitario | Prezzo totale
+5. TOTALE COMPLESSIVO in grassetto
+6. CONDIZIONI DI FORNITURA (tabella): Consegna, IVA, Fatturazione, Validità Offerta, Spese trasporto, Modalità Pagamento
+7. ESCLUSIONI (lista numerata come nell'esempio)
+8. CONDIZIONI GENERALI (come nell'esempio)
+9. FIRMA: "PER ACCETTAZIONE OFFERTA PROT. _______________"
+
+ARTICOLI DA INSERIRE (primi 20):
+${data.articoli.slice(0, 20).map(art => 
+    `${art.quantita} | ${art.descrizioneArticolo} | €${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} | €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
 ).join('\n')}
 
-RIEPILOGO PER SEZIONE:
-${Object.entries(data.riepilogoPerSezione).slice(0, 10).map(([sezione, totali]) => 
-    `- ${sezione}: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
-).join('\n')}
+IMPORTANTE: 
+- Usa font professionale (Arial, dimensione leggibile)
+- Replica ESATTAMENTE il layout dell'esempio
+- Tabelle con bordi e stile identico
+- Mantieni le stesse sezioni e formattazione
+- Header con logo Var Group posizionato come nell'esempio
+- Usa il nome del cliente fornito: ${projectData.cliente}
 
-ARTICOLI PRINCIPALI (primi 15):
-${data.articoli.slice(0, 15).map(art => 
-    `- ${art.descrizioneArticolo} (${art.produttore}) - Qty: ${art.quantita} - €${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} cad. - Tot: €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
-).join('\n')}
-
-Crea un'offerta commerciale strutturata con:
-1. Header Var Group con logo e dati aziendali
-2. Dati cliente e riferimenti progetto
-3. Executive Summary della soluzione
-4. Tabelle dettagliate per sezione/tipo articolo
-5. Riepilogo economico con totali e margini
-6. Condizioni commerciali e modalità di pagamento
-7. Vantaggi competitivi Var Group (51 anni esperienza, partnership certificate)
-8. Timeline implementazione standard
-9. Termini e condizioni
-
-Formato: HTML ben strutturato e professionale, pronto per conversione Word/PDF.`;
+Formato: HTML completo e professionale per stampa/conversione PDF.`;
 
             return await callGeminiAPI(prompt);
         }
@@ -911,34 +909,42 @@ Formato: HTML ben strutturato e professionale, pronto per conversione Word/PDF.`
         async function generateExecutiveSummary(projectData) {
             const data = projectData.extractedData;
             
-            const prompt = `Crea una sintesi esecutiva del progetto per ${projectData.cliente}.
+            // Genera solo le colonne I, J, R, U come richiesto
+            const sintesiArticoli = data.articoli.map(art => ({
+                listinoUnitario: art.listinoUnitario,     // Colonna I
+                costoUnitario: art.costoUnitario,         // Colonna J  
+                venditaTotale: art.venditaTotale,         // Colonna R
+                colonnaU: art.colonnaU                    // Colonna U
+            }));
+
+            const prompt = `Crea una sintesi economica del progetto per ${projectData.cliente}.
+
+FOCUS: Solo colonne economiche essenziali (I, J, R, U dall'analisi DSA)
 
 DATI PROGETTO:
+- Cliente: ${projectData.cliente}
 - Valore totale: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
 - Margine: €${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)
-- Articoli totali: ${data.articoli.length}
-- Priorità: ${projectData.projectPriority}
+- Articoli: ${data.articoli.length}
 
-BREAKDOWN SOLUZIONI:
-${Object.entries(data.riepilogoPerTipo).map(([tipo, totali]) => 
-    `- ${tipo}: €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${totali.articoli} componenti)`
+TABELLA SINTESI ECONOMICA (solo colonne I, J, R, U):
+| Listino Unitario (I) | Costo Unitario (J) | Vendita Totale (R) | Colonna U |
+${sintesiArticoli.slice(0, 15).map(art => 
+    `| €${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} | €${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} | €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} | ${art.colonnaU} |`
 ).join('\n')}
 
-AREE COPERTE:
-${Object.entries(data.riepilogoPerSezione).map(([sezione, totali]) => 
-    `- ${sezione}: €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
-).join('\n')}
+TOTALI:
+- Totale Listino: €${sintesiArticoli.reduce((sum, art) => sum + art.listinoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}
+- Totale Costi: €${sintesiArticoli.reduce((sum, art) => sum + art.costoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}
+- Totale Vendita: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
 
-Crea una sintesi esecutiva di 2 pagine con:
-1. Overview progetto e valore strategico
-2. Soluzione proposta per aree (Audio, Video, Collaboration, etc.)
-3. Breakdown investimento per tipologia
-4. ROI e benefici attesi
-5. Timeline implementazione (standard 8-12 settimane)
-6. Rischi principali e piani di mitigazione
-7. Next steps e milestone decision
+Crea una sintesi economica strutturata con:
+1. Header con titolo "SINTESI ECONOMICA - ${projectData.cliente}"
+2. Tabella con SOLO le 4 colonne specificate (I, J, R, U)
+3. Totali in fondo
+4. Layout pulito e leggibile per executive
 
-Formato: HTML professionale per conversione PDF, executive-level, linguaggio business.`;
+Formato: HTML tabellare per conversione PDF.`;
 
             return await callGeminiAPI(prompt);
         }
@@ -1022,6 +1028,11 @@ Formato: HTML professionale per conversione PDF, executive-level, linguaggio bus
             });
             
             filesList.innerHTML = filesHTML;
+            
+            // Auto-show preview of first file to verify it's working
+            if (generatedFilesData.length > 0) {
+                setTimeout(() => previewFile(0), 500);
+            }
         }
 
         function getIconPath(iconType) {
@@ -1074,15 +1085,26 @@ Formato: HTML professionale per conversione PDF, executive-level, linguaggio bus
             
             let previewHTML = `
                 <div class="bg-white border rounded-lg p-6">
-                    <h4 class="font-medium text-gray-800 mb-4">Anteprima: ${file.name}</h4>
-                    <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-medium text-gray-800">Anteprima: ${file.name}</h4>
+                        <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            Scarica File
+                        </button>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto border">
             `;
             
             if (file.type === 'crm') {
-                const data = JSON.parse(file.content);
-                previewHTML += '<pre class="text-sm">' + JSON.stringify(data, null, 2) + '</pre>';
+                try {
+                    const data = JSON.parse(file.content);
+                    previewHTML += '<pre class="text-sm font-mono">' + JSON.stringify(data, null, 2) + '</pre>';
+                } catch (e) {
+                    previewHTML += '<p class="text-red-600">Errore nel parsing JSON del file CRM</p>';
+                }
             } else {
-                previewHTML += file.content.substring(0, 2000) + (file.content.length > 2000 ? '...' : '');
+                // Show HTML content with proper formatting
+                const cleanContent = file.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+                previewHTML += `<div class="prose max-w-none">${cleanContent.substring(0, 3000)}${file.content.length > 3000 ? '<p><em>... contenuto troncato per anteprima ...</em></p>' : ''}</div>`;
             }
             
             previewHTML += `
