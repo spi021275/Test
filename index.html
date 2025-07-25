@@ -473,25 +473,70 @@
                 riepilogoPerTipo: {},
                 riepilogoPerSezione: {},
                 sheets: Object.keys(excelData),
-                errori: []
+                errori: [],
+                debug: []
             };
 
-            // Cerca il foglio "Analisi Economica"
+            // DEBUG: Mostra tutti i fogli trovati
+            extracted.debug.push(`Fogli trovati: ${Object.keys(excelData).join(', ')}`);
+
+            // Cerca il foglio "Analisi Economica" - versione più flessibile
             let analisiSheet = null;
             let sheetName = '';
             
-            Object.keys(excelData).forEach(name => {
-                if (name.toLowerCase().includes('analisi economica') || 
-                    name.toLowerCase().includes('analisieconomica') ||
-                    name.toLowerCase() === 'analisi economica') {
-                    analisiSheet = excelData[name];
-                    sheetName = name;
+            // Prima prova con nomi esatti
+            const possibiliNomi = [
+                'Analisi Economica',
+                'analisi economica',
+                'ANALISI ECONOMICA',
+                'Analisi economica',
+                'AnalisiEconomica',
+                'Analisi_Economica'
+            ];
+
+            for (let nome of possibiliNomi) {
+                if (excelData[nome]) {
+                    analisiSheet = excelData[nome];
+                    sheetName = nome;
+                    extracted.debug.push(`Trovato foglio con nome esatto: "${nome}"`);
+                    break;
                 }
-            });
+            }
+
+            // Se non trovato, cerca per contenuto parziale
+            if (!analisiSheet) {
+                Object.keys(excelData).forEach(name => {
+                    const nameLower = name.toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
+                    if (nameLower.includes('analisi') || nameLower.includes('economic')) {
+                        analisiSheet = excelData[name];
+                        sheetName = name;
+                        extracted.debug.push(`Trovato foglio per contenuto: "${name}"`);
+                    }
+                });
+            }
+
+            // Se ancora non trovato, usa il primo foglio disponibile
+            if (!analisiSheet && Object.keys(excelData).length > 0) {
+                const primoFoglio = Object.keys(excelData)[0];
+                analisiSheet = excelData[primoFoglio];
+                sheetName = primoFoglio;
+                extracted.debug.push(`Usando primo foglio disponibile: "${primoFoglio}"`);
+                extracted.errori.push(`Foglio "Analisi Economica" non trovato. Usando "${primoFoglio}"`);
+            }
 
             if (!analisiSheet) {
-                extracted.errori.push('Foglio "Analisi Economica" non trovato');
+                extracted.errori.push('Nessun foglio trovato nel file Excel');
                 return extracted;
+            }
+
+            // DEBUG: Mostra info sul foglio selezionato
+            extracted.debug.push(`Foglio selezionato: "${sheetName}" con ${analisiSheet.length} righe`);
+            
+            // DEBUG: Mostra le prime 3 righe per capire la struttura
+            for (let i = 0; i < Math.min(3, analisiSheet.length); i++) {
+                if (analisiSheet[i] && analisiSheet[i].length > 0) {
+                    extracted.debug.push(`Riga ${i + 1}: ${analisiSheet[i].slice(0, 10).join(' | ')}`);
+                }
             }
 
             // Definizione colonne (indici da 0)
@@ -616,10 +661,20 @@
             
             let html = '<div class="space-y-3">';
             
+            // DEBUG INFO - mostra sempre per capire cosa succede
+            if (data.debug && data.debug.length > 0) {
+                html += `<div class="bg-yellow-50 p-3 rounded border border-yellow-200">`;
+                html += `<strong class="text-yellow-800">Debug Info:</strong><br>`;
+                data.debug.forEach(debug => {
+                    html += `• ${debug}<br>`;
+                });
+                html += `</div>`;
+            }
+            
             // Errori eventuali
             if (data.errori.length > 0) {
                 html += `<div class="bg-red-50 p-3 rounded border border-red-200">`;
-                html += `<strong class="text-red-800">Errori:</strong><br>`;
+                html += `<strong class="text-red-800">Errori/Avvisi:</strong><br>`;
                 data.errori.forEach(errore => {
                     html += `• ${errore}<br>`;
                 });
@@ -634,6 +689,21 @@
             html += `Articoli Estratti: <strong>${data.articoli.length}</strong><br>`;
             html += `Fogli nel File: ${data.sheets.join(', ')}`;
             html += `</div>`;
+            
+            // Se non ci sono articoli, mostra un messaggio più dettagliato
+            if (data.articoli.length === 0) {
+                html += `<div class="bg-orange-50 p-3 rounded border border-orange-200">`;
+                html += `<strong class="text-orange-800">Nessun articolo estratto</strong><br>`;
+                html += `Possibili cause:<br>`;
+                html += `• Il foglio non contiene dati dalle riga 3 in poi<br>`;
+                html += `• Le colonne non corrispondono alla struttura attesa<br>`;
+                html += `• I dati sono in un formato diverso<br><br>`;
+                html += `<strong>Verifica che:</strong><br>`;
+                html += `• La colonna G contenga le descrizioni degli articoli<br>`;
+                html += `• La colonna H contenga le quantità (numeri > 0)<br>`;
+                html += `• I dati inizino dalla riga 3`;
+                html += `</div>`;
+            }
             
             // Riepilogo per tipo articolo
             if (Object.keys(data.riepilogoPerTipo).length > 0) {
@@ -660,7 +730,7 @@
             
             // Esempio articoli
             if (data.articoli.length > 0) {
-                html += `<div class="bg-yellow-50 p-3 rounded border">`;
+                html += `<div class="bg-green-50 p-3 rounded border">`;
                 html += `<strong>Primi Articoli Estratti:</strong><br>`;
                 data.articoli.slice(0, 3).forEach(art => {
                     html += `• <strong>${art.descrizioneArticolo}</strong><br>`;
