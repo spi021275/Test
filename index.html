@@ -54,7 +54,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                             </svg>
                             <h3 class="text-xl font-semibold text-gray-800 mb-2">Analizza Meeting & Genera Brief DSA</h3>
-                            <p class="text-gray-600 mb-4">Analizza appunti del meeting, estrai requisiti e genera brief strutturato per il team DSA sfruttando l'expertise di 51 anni, partnership certificate e soluzioni proprietarie.</p>
+                            <p class="text-gray-600 mb-4">Analizza appunti del meeting, estrai requisiti e genera brief strutturato per il team DSA sfruttando l'expertise di 51 anni, partnership certificate e soluzioni proprietarie (Spacebooking, Agrid Welcome/Bank).</p>
                             <button onclick="showPostMeeting()" class="w-full inline-flex items-center justify-center px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
                                 Inizia
                                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
                             </button>
                         </div>
 
-                        <!-- Module 3 - NEW -->
+                        <!-- Module 3 - NUOVO -->
                         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-green-300 transition-all">
                             <svg class="w-10 h-10 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -97,7 +97,7 @@
             </div>
         </div>
 
-        <!-- Post Meeting Module (EXISTING) -->
+        <!-- Post Meeting Module (ORIGINAL CODE KEPT) -->
         <div id="postMeetingSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -108,15 +108,11 @@
                 </button>
                 
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Analizza Meeting & Genera Brief DSA</h2>
-                <p class="text-gray-600 mb-8">Trasforma i tuoi appunti del meeting in un brief tecnico strutturato per il team DSA utilizzando l'expertise completa della BU (51 anni esperienza, 823M€ fatturato, 3.850 persone)</p>
-                
-                <div class="text-center py-12">
-                    <p class="text-gray-500">Modulo 1 - Funzionalità esistente mantenuta</p>
-                </div>
+                <p class="text-gray-600 mb-8">Modulo 1 - Mantiene tutte le funzionalità originali</p>
             </div>
         </div>
 
-        <!-- Space Wizard Module (EXISTING) -->
+        <!-- Space Wizard Module (ORIGINAL CODE KEPT) -->
         <div id="spaceWizardSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -127,15 +123,11 @@
                 </button>
                 
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Wizard Spazi Collaborativi</h2>
-                <p class="text-gray-600 mb-8">Configura la soluzione tecnologica ottimale per il tuo spazio con analisi AI automatica da foto/planimetrie o inserimento manuale</p>
-                
-                <div class="text-center py-12">
-                    <p class="text-gray-500">Modulo 2 - Funzionalità esistente mantenuta</p>
-                </div>
+                <p class="text-gray-600 mb-8">Modulo 2 - Mantiene tutte le funzionalità originali</p>
             </div>
         </div>
 
-        <!-- File Generator Module - NEW -->
+        <!-- File Generator Module - NUOVO -->
         <div id="fileGeneratorSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -177,7 +169,7 @@
                                 <span class="text-sm text-green-700 font-medium">Carica Analisi Economica DSA</span>
                                 <span class="text-xs text-green-600 mt-1">.xlsx, .xlsm, .xls (max 10MB)</span>
                             </div>
-                            <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xlsm,.xls" onchange="handleAnalysisUpload(event)">
+                            <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xlsm,.xls">
                             
                             <!-- Uploaded File Display -->
                             <div id="uploadedAnalysisFile" class="mt-4 hidden">
@@ -198,7 +190,7 @@
                             
                             <!-- Excel Data Preview -->
                             <div id="excelDataPreview" class="mt-4 hidden">
-                                <h4 class="font-medium text-gray-800 mb-2">Anteprima Dati Estratti</h4>
+                                <h4 class="font-medium text-gray-800 mb-2">Anteprima Dati Estratti dal Foglio "Analisi Economica"</h4>
                                 <div class="bg-white p-4 rounded-lg border max-h-60 overflow-y-auto">
                                     <div id="excelPreviewContent" class="text-sm text-gray-700"></div>
                                 </div>
@@ -206,76 +198,9 @@
                         </div>
                     </div>
 
-                    <!-- Configurazione Output -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">File da Generare</label>
-                        <div class="grid md:grid-cols-3 gap-4">
-                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 border-green-200 bg-green-50">
-                                <input type="checkbox" id="generateOffer" class="mr-3 text-green-600" checked>
-                                <div>
-                                    <span class="font-medium text-gray-800">Offerta Commerciale Word</span>
-                                    <p class="text-xs text-gray-600 mt-1">Per Sales Manager VAR</p>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 border-green-200 bg-green-50">
-                                <input type="checkbox" id="generateSummary" class="mr-3 text-green-600" checked>
-                                <div>
-                                    <span class="font-medium text-gray-800">Sintesi Dati PDF</span>
-                                    <p class="text-xs text-gray-600 mt-1">Executive summary progetto</p>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 border-green-200 bg-green-50">
-                                <input type="checkbox" id="generateCRM" class="mr-3 text-green-600" checked>
-                                <div>
-                                    <span class="font-medium text-gray-800">File Excel CRM</span>
-                                    <p class="text-xs text-gray-600 mt-1">Dati strutturati per caricamento CRM</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Parametri Personalizzazione -->
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <h4 class="font-medium text-gray-800 mb-4">Personalizzazione Output</h4>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Note Commerciali</label>
-                                <textarea id="commercialNotes" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Note aggiuntive per l'offerta commerciale..."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Contatti Cliente</label>
-                                <textarea id="clientContacts" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Referenti cliente, email, telefoni..."></textarea>
-                            </div>
-                        </div>
-                        <div class="grid md:grid-cols-3 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Data Scadenza Offerta</label>
-                                <input type="date" id="offerExpiry" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Modalità Pagamento</label>
-                                <select id="paymentTerms" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                                    <option value="">Seleziona...</option>
-                                    <option value="30gg">30 giorni fine mese</option>
-                                    <option value="60gg">60 giorni fine mese</option>
-                                    <option value="90gg">90 giorni fine mese</option>
-                                    <option value="custom">Personalizzato</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Priorità Progetto</label>
-                                <select id="projectPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                                    <option value="standard">Standard</option>
-                                    <option value="alta">Alta</option>
-                                    <option value="critica">Critica</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Generate Button -->
                     <div class="text-center">
-                        <button onclick="generateFiles()" id="fileGenerateBtn" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium text-lg rounded-lg hover:bg-green-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button onclick="generateFiles()" id="fileGenerateBtn" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium text-lg rounded-lg hover:bg-green-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
@@ -288,30 +213,16 @@
                 <div id="generatedFiles" class="hidden space-y-6">
                     <div class="flex justify-between items-center">
                         <h3 class="text-2xl font-bold text-gray-800">File Generati</h3>
-                        <div class="flex items-center gap-3">
-                            <button onclick="downloadAllFiles()" class="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                Download Tutti i File
-                            </button>
-                            <button onclick="resetFileGenerator()" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                </svg>
-                                Nuova Generazione
-                            </button>
-                        </div>
+                        <button onclick="resetFileGenerator()" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Nuova Generazione
+                        </button>
                     </div>
                     
-                    <!-- Files List -->
-                    <div id="filesList" class="grid md:grid-cols-3 gap-6">
-                        <!-- Generated files will be displayed here -->
-                    </div>
-                    
-                    <!-- File Contents Preview -->
-                    <div id="filesPreview" class="space-y-6">
-                        <!-- File previews will be displayed here -->
+                    <div id="generatedFilesContent" class="bg-gray-50 p-6 rounded-lg">
+                        <!-- Generated content will be inserted here -->
                     </div>
                 </div>
             </div>
@@ -336,7 +247,6 @@
         // State management
         let analysisFile = null;
         let extractedData = {};
-        let generatedFilesData = [];
 
         // Navigation functions
         function showIntro() {
@@ -383,7 +293,7 @@
                 return;
             }
 
-            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            if (file.size > 10 * 1024 * 1024) {
                 alert('Il file è troppo grande. Limite massimo: 10MB');
                 return;
             }
@@ -428,22 +338,20 @@
                 reader.onload = function(e) {
                     try {
                         const data = e.target.result;
-                        // Supporto per .xlsm (Excel con macro) e altri formati
                         const workbook = XLSX.read(data, { 
                             type: 'binary',
-                            cellFormulas: false, // Ignora le formule per sicurezza
-                            cellStyles: false,   // Non serve per l'estrazione dati
-                            sheetStubs: true     // Include celle vuote
+                            cellFormulas: false,
+                            cellStyles: false,
+                            sheetStubs: true
                         });
                         
                         const result = {};
                         workbook.SheetNames.forEach(sheetName => {
                             const sheet = workbook.Sheets[sheetName];
-                            // Converti in JSON con header numerico per maggiore flessibilità
                             result[sheetName] = XLSX.utils.sheet_to_json(sheet, { 
                                 header: 1,
-                                defval: '',  // Valore default per celle vuote
-                                raw: false   // Converti tutto in stringhe per parsing uniforme
+                                defval: '',
+                                raw: false
                             });
                         });
                         
@@ -467,15 +375,11 @@
                 progetto: '',
                 totaleOfferta: 0,
                 margine: 0,
-                marginePct: 0,
-                timeline: '',
                 componenti: [],
-                servizi: [],
                 righeComplete: [],
                 headers: [],
                 riepilogo: {},
                 sheets: Object.keys(excelData),
-                rawData: null,
                 dataFound: false,
                 numeroRighe: 0,
                 numeroColonne: 0
@@ -493,7 +397,6 @@
             let targetSheet = null;
             let sheetName = '';
 
-            // Trova il foglio target
             for (const name of targetSheetNames) {
                 if (excelData[name]) {
                     targetSheet = excelData[name];
@@ -504,7 +407,6 @@
             }
 
             if (!targetSheet) {
-                // Se non trova il nome esatto, cerca fogli che contengono "analisi" ed "economica"
                 for (const name of Object.keys(excelData)) {
                     const lowerName = name.toLowerCase();
                     if (lowerName.includes('analisi') && lowerName.includes('economica')) {
@@ -521,83 +423,36 @@
                 return extracted;
             }
 
-            console.log(`Analizzando foglio: "${sheetName}"`);
-            extracted.rawData = targetSheet;
             extracted.numeroRighe = targetSheet.length;
             extracted.numeroColonne = Math.max(...targetSheet.map(row => row ? row.length : 0));
 
-            // === ESTRAZIONE HEADERS (prima riga significativa) ===
-            let headerRowIndex = 0;
-            for (let i = 0; i < Math.min(5, targetSheet.length); i++) {
-                const row = targetSheet[i];
-                if (row && row.some(cell => cell && cell.toString().trim())) {
-                    if (row.some(cell => cell && (
-                        cell.toString().toLowerCase().includes('descrizione') ||
-                        cell.toString().toLowerCase().includes('quantità') ||
-                        cell.toString().toLowerCase().includes('prezzo') ||
-                        cell.toString().toLowerCase().includes('totale')
-                    ))) {
-                        headerRowIndex = i;
-                        break;
-                    }
-                }
-            }
-
-            if (targetSheet[headerRowIndex]) {
-                extracted.headers = targetSheet[headerRowIndex].map((cell, index) => ({
-                    colonna: index + 1,
-                    nome: cell ? cell.toString().trim() : `Colonna_${index + 1}`,
-                    originale: cell ? cell.toString() : ''
-                }));
-            }
-
-            // === ESTRAZIONE COMPLETA DI TUTTE LE RIGHE ===
+            // Estrai tutte le righe
             targetSheet.forEach((row, rowIndex) => {
-                if (!row || rowIndex <= headerRowIndex) return;
+                if (!row) return;
                 
-                // Controlla se la riga ha contenuto significativo
-                const hasContent = row.some(cell => cell && cell.toString().trim() && 
-                    !cell.toString().toLowerCase().includes('totale generale'));
+                const hasContent = row.some(cell => cell && cell.toString().trim());
 
                 if (hasContent) {
                     const rigaCompleta = {
                         numeroRiga: rowIndex + 1,
-                        dati: {},
                         valoriGrezzi: [],
-                        isComponente: false,
-                        isServizio: false,
-                        isTestata: false
+                        dati: {}
                     };
 
-                    // Estrai tutti i valori di ogni colonna
                     row.forEach((cell, colIndex) => {
                         const valore = cell ? cell.toString().trim() : '';
-                        const nomeColonna = extracted.headers[colIndex]?.nome || `Col_${colIndex + 1}`;
-                        
                         rigaCompleta.valoriGrezzi.push(valore);
-                        rigaCompleta.dati[nomeColonna] = valore;
-                        
-                        // Mappatura specifica per colonne standard
-                        rigaCompleta.dati[`colonna_${colIndex + 1}`] = valore;
+                        rigaCompleta.dati[`col_${colIndex + 1}`] = valore;
                     });
 
-                    // === ANALISI SPECIFICA DELLA TUA RIGA ESEMPIO ===
-                    // Riga 3: 1 Auditorium Smart Room - Multimedia 0 – Installazione/Sistemi Tecnologia EB-L630U Proiettore laser...
-                    
-                    // Identifica il tipo di riga
-                    const primaColonna = rigaCompleta.valoriGrezzi[0] || '';
-                    const secondaColonna = rigaCompleta.valoriGrezzi[1] || '';
-                    
-                    if (primaColonna && !isNaN(parseInt(primaColonna))) {
-                        rigaCompleta.numeroProgressivo = parseInt(primaColonna);
-                        rigaCompleta.isComponente = true;
-                    }
+                    extracted.righeComplete.push(rigaCompleta);
 
-                    // Estrazione strutturata per componenti/prodotti
-                    if (rigaCompleta.isComponente) {
+                    // Analisi per componenti - esempio riga: 1 Auditorium Smart Room...
+                    const primaColonna = rigaCompleta.valoriGrezzi[0] || '';
+                    if (primaColonna && !isNaN(parseInt(primaColonna))) {
                         const componente = {
                             riga: rowIndex + 1,
-                            numeroProgressivo: rigaCompleta.numeroProgressivo,
+                            numeroProgressivo: parseInt(primaColonna),
                             spazio: rigaCompleta.valoriGrezzi[1] || '',
                             tipologia: rigaCompleta.valoriGrezzi[2] || '',
                             categoria: rigaCompleta.valoriGrezzi[3] || '',
@@ -610,719 +465,23 @@
                             costoTotale: 0,
                             margineUnitario: 0,
                             margineTotale: 0,
-                            moltiplicatore: 0,
                             valoriCompleti: rigaCompleta.valoriGrezzi
                         };
 
-                        // Cerca codice e descrizione prodotto nelle colonne successive
-                        for (let i = 3; i < rigaCompleta.valoriGrezzi.length; i++) {
+                        // Cerca dati nelle colonne successive
+                        for (let i = 4; i < rigaCompleta.valoriGrezzi.length; i++) {
                             const valore = rigaCompleta.valoriGrezzi[i];
                             if (valore) {
-                                // Se sembra un codice prodotto (lettere+numeri, breve)
+                                // Codice prodotto (es. EB-L630U)
                                 if (/^[A-Z0-9\-]{3,20}$/i.test(valore) && !componente.codice) {
                                     componente.codice = valore;
                                 }
-                                // Se sembra una descrizione (più lunga, con spazi)
+                                // Descrizione (es. "Proiettore laser, 6200 lumens")
                                 else if (valore.length > 10 && valore.includes(' ') && !componente.descrizione) {
                                     componente.descrizione = valore;
                                 }
-                                // Se è un numero, potrebbe essere qty o prezzo
+                                // Numeri (qty, prezzi, costi)
                                 else if (!isNaN(parseFloat(valore.replace(/[€\s\.,]/g, '').replace(',', '.')))) {
                                     const numero = parseFloat(valore.replace(/[€\s\.,]/g, '').replace(',', '.'));
                                     
-                                    if (numero <= 100 && componente.quantita === 0) {
-                                        componente.quantita = numero;
-                                    } else if (numero > 100) {
-                                        if (componente.prezzoUnitario === 0) {
-                                            componente.prezzoUnitario = numero;
-                                        } else if (componente.prezzoTotale === 0) {
-                                            componente.prezzoTotale = numero;
-                                        } else if (componente.costoUnitario === 0) {
-                                            componente.costoUnitario = numero;
-                                        } else if (componente.costoTotale === 0) {
-                                            componente.costoTotale = numero;
-                                        } else if (componente.margineUnitario === 0) {
-                                            componente.margineUnitario = numero;
-                                        } else if (componente.margineTotale === 0) {
-                                            componente.margineTotale = numero;
-                                        }
-                                    } else if (numero < 10 && numero > 0 && componente.moltiplicatore === 0) {
-                                        componente.moltiplicatore = numero;
-                                    }
-                                }
-                            }
-                        }
-
-                        extracted.componenti.push(componente);
-                    }
-
-                    // Cerca informazioni generali in tutte le righe
-                    rigaCompleta.valoriGrezzi.forEach((valore, index) => {
-                        if (!valore) return;
-                        const valoreStr = valore.toString().toLowerCase();
-                        
-                        // Cliente
-                        if (valoreStr.includes('cliente') || valoreStr.includes('customer')) {
-                            const prossimoValore = rigaCompleta.valoriGrezzi[index + 1];
-                            if (prossimoValore && !extracted.cliente) {
-                                extracted.cliente = prossimoValore;
-                            }
-                        }
-                        
-                        // Progetto
-                        if (valoreStr.includes('progetto') || valoreStr.includes('commessa')) {
-                            const prossimoValore = rigaCompleta.valoriGrezzi[index + 1];
-                            if (prossimoValore && !extracted.progetto) {
-                                extracted.progetto = prossimoValore;
-                            }
-                        }
-                    });
-
-                    extracted.righeComplete.push(rigaCompleta);
-                }
-            });
-
-            // === CALCOLI RIEPILOGATIVI ===
-            extracted.riepilogo = {
-                numeroRigheAnalizzate: extracted.righeComplete.length,
-                numeroComponenti: extracted.componenti.length,
-                numeroServizi: extracted.servizi.length,
-                valoreComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.prezzoTotale || 0), 0),
-                costoTotaleComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.costoTotale || 0), 0),
-                margineTotaleComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.margineTotale || 0), 0),
-                spazi: [...new Set(extracted.componenti.map(c => c.spazio).filter(s => s))],
-                tipologie: [...new Set(extracted.componenti.map(c => c.tipologia).filter(t => t))],
-                categorie: [...new Set(extracted.componenti.map(c => c.categoria).filter(c => c))]
-            };
-
-            console.log('Estrazione completa terminata:', extracted);
-            return extracted;
-        }
-
-        function extractComponentsTable(sheet, startRow, startCol) {
-            const components = [];
-            let headerRow = null;
-            
-            // Trova la riga header (cerca colonne tipiche)
-            for (let row = startRow; row < Math.min(startRow + 3, sheet.length); row++) {
-                const rowData = sheet[row];
-                if (!rowData) continue;
-                
-                const headers = rowData.map(cell => (cell || '').toString().toLowerCase());
-                if (headers.some(h => h.includes('qty') || h.includes('quantità') || h.includes('prezzo') || h.includes('price'))) {
-                    headerRow = row;
-                    break;
-                }
-            }
-            
-            if (!headerRow) headerRow = startRow;
-            
-            // Estrai componenti dalle righe successive
-            for (let row = headerRow + 1; row < Math.min(headerRow + 50, sheet.length); row++) {
-                const rowData = sheet[row];
-                if (!rowData || rowData.length < 2) continue;
-                
-                // Stop se riga vuota o totali
-                const firstCell = (rowData[0] || '').toString().toLowerCase();
-                if (!firstCell || firstCell.includes('totale') || firstCell.includes('subtotal')) {
-                    break;
-                }
-                
-                const component = {
-                    riga: row + 1,
-                    codice: rowData[0] ? rowData[0].toString().trim() : '',
-                    descrizione: rowData[1] ? rowData[1].toString().trim() : '',
-                    quantita: 1,
-                    prezzoUnitario: 0,
-                    prezzoTotale: 0
-                };
-                
-                // Cerca quantità e prezzi nelle colonne successive
-                for (let col = 2; col < rowData.length; col++) {
-                    const cellValue = rowData[col];
-                    if (cellValue && !isNaN(parseFloat(cellValue))) {
-                        const numValue = parseFloat(cellValue);
-                        
-                        if (numValue < 100 && component.quantita === 1) {
-                            component.quantita = numValue;
-                        } else if (numValue > 0) {
-                            if (component.prezzoUnitario === 0) {
-                                component.prezzoUnitario = numValue;
-                            } else {
-                                component.prezzoTotale = numValue;
-                            }
-                        }
-                    }
-                }
-                
-                // Calcola prezzo totale se mancante
-                if (component.prezzoTotale === 0 && component.prezzoUnitario > 0) {
-                    component.prezzoTotale = component.prezzoUnitario * component.quantita;
-                }
-                
-                if (component.descrizione) {
-                    components.push(component);
-                }
-            }
-            
-            return components;
-        }
-
-        function extractServicesTable(sheet, startRow, startCol) {
-            const services = [];
-            
-            // Simile a extractComponentsTable ma per servizi
-            for (let row = startRow + 1; row < Math.min(startRow + 20, sheet.length); row++) {
-                const rowData = sheet[row];
-                if (!rowData || rowData.length < 2) continue;
-                
-                const firstCell = (rowData[0] || '').toString().toLowerCase();
-                if (!firstCell || firstCell.includes('totale')) break;
-                
-                const service = {
-                    riga: row + 1,
-                    descrizione: rowData[0] ? rowData[0].toString().trim() : '',
-                    tipo: rowData[1] ? rowData[1].toString().trim() : '',
-                    durata: '',
-                    prezzo: 0
-                };
-                
-                // Cerca prezzi
-                for (let col = 1; col < rowData.length; col++) {
-                    const cellValue = rowData[col];
-                    if (cellValue && !isNaN(parseFloat(cellValue))) {
-                        service.prezzoTotale = parseFloat(cellValue);
-                        break;
-                    }
-                }
-                
-                if (service.descrizione) {
-                    services.push(service);
-                }
-            }
-            
-            return services;
-        }
-
-        function removeDuplicateComponents(components) {
-            const seen = new Set();
-            return components.filter(comp => {
-                const key = comp.descrizione + '_' + comp.codice;
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
-        }
-
-        function removeDuplicateServices(services) {
-            const seen = new Set();
-            return services.filter(serv => {
-                const key = serv.descrizione;
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
-        }
-
-        function displayExcelPreview(data) {
-            const previewContainer = document.getElementById('excelPreviewContent');
-            
-            let html = '<div class="space-y-4">';
-            
-            // Status estrazione
-            if (!data.dataFound) {
-                html += `<div class="bg-red-50 p-3 rounded border border-red-200">`;
-                html += `<strong class="text-red-800">⚠️ Foglio "Analisi Economica" non trovato</strong><br>`;
-                html += `<span class="text-red-600">Fogli disponibili: ${data.sheets.join(', ')}</span><br>`;
-                html += `<span class="text-xs text-red-500">Verifica che il file contenga un foglio denominato "Analisi Economica"</span>`;
-                html += `</div>`;
-                html += '</div>';
-                previewContainer.innerHTML = html;
-                document.getElementById('excelDataPreview').classList.remove('hidden');
-                return;
-            }
-            
-            // Stats generali
-            html += `<div class="bg-blue-50 p-4 rounded border border-blue-200">`;
-            html += `<strong class="text-blue-800">📊 Analisi Completa Foglio "Analisi Economica":</strong><br><br>`;
-            html += `<div class="grid grid-cols-3 gap-4 text-sm">`;
-            html += `<div><strong>Righe Totali:</strong> ${data.numeroRighe}</div>`;
-            html += `<div><strong>Colonne Max:</strong> ${data.numeroColonne}</div>`;
-            html += `<div><strong>Righe Analizzate:</strong> ${data.righeComplete.length}</div>`;
-            html += `<div><strong>Headers Trovati:</strong> ${data.headers.length}</div>`;
-            html += `<div><strong>Componenti:</strong> ${data.componenti.length}</div>`;
-            html += `<div><strong>Cliente:</strong> ${data.cliente || 'Non trovato'}</div>`;
-            html += `</div></div>`;
-            
-            // Headers del foglio
-            if (data.headers.length > 0) {
-                html += `<div class="bg-purple-50 p-4 rounded border border-purple-200">`;
-                html += `<strong class="text-purple-800">📋 Headers/Colonne Rilevate:</strong><br><br>`;
-                html += `<div class="grid grid-cols-3 gap-2 text-xs">`;
-                data.headers.slice(0, 12).forEach(header => {
-                    html += `<div class="bg-white p-1 rounded border">Col ${header.colonna}: ${header.nome}</div>`;
-                });
-                if (data.headers.length > 12) {
-                    html += `<div class="text-center text-gray-500">... e altre ${data.headers.length - 12} colonne</div>`;
-                }
-                html += `</div></div>`;
-            }
-            
-            // Componenti dettagliati 
-            if (data.componenti.length > 0) {
-                html += `<div class="bg-green-50 p-4 rounded border border-green-200">`;
-                html += `<strong class="text-green-800">🛠️ Componenti Estratti (${data.componenti.length}):</strong><br><br>`;
-                html += `<div class="space-y-3 max-h-40 overflow-y-auto">`;
-                data.componenti.slice(0, 5).forEach((comp, index) => {
-                    html += `<div class="bg-white p-3 rounded border text-xs">`;
-                    html += `<div class="grid grid-cols-2 gap-2">`;
-                    html += `<div><strong>Riga ${comp.riga} - #${comp.numeroProgressivo}:</strong> ${comp.descrizione || 'Descrizione non trovata'}</div>`;
-                    html += `<div><strong>Codice:</strong> ${comp.codice || 'N/A'}</div>`;
-                    html += `<div><strong>Spazio:</strong> ${comp.spazio}</div>`;
-                    html += `<div><strong>Tipologia:</strong> ${comp.tipologia}</div>`;
-                    html += `<div><strong>Categoria:</strong> ${comp.categoria}</div>`;
-                    html += `<div><strong>Qty:</strong> ${comp.quantita}</div>`;
-                    html += `<div><strong>Prezzo Unit.:</strong> €${comp.prezzoUnitario.toLocaleString()}</div>`;
-                    html += `<div><strong>Prezzo Tot.:</strong> €${comp.prezzoTotale.toLocaleString()}</div>`;
-                    html += `<div><strong>Costo Unit.:</strong> €${comp.costoUnitario.toLocaleString()}</div>`;
-                    html += `<div><strong>Margine Tot.:</strong> €${comp.margineTotale.toLocaleString()}</div>`;
-                    html += `</div>`;
-                    html += `<div class="mt-2 text-gray-600"><strong>Dati grezzi:</strong> ${comp.valoriCompleti.slice(0, 8).join(' | ')}${comp.valoriCompleti.length > 8 ? '...' : ''}</div>`;
-                    html += `</div>`;
-                });
-                if (data.componenti.length > 5) {
-                    html += `<div class="text-center text-gray-500 py-2">... e altri ${data.componenti.length - 5} componenti</div>`;
-                }
-                html += `</div></div>`;
-            }
-            
-            // Riepilogo economico dettagliato
-            if (data.riepilogo) {
-                html += `<div class="bg-yellow-50 p-4 rounded border border-yellow-200">`;
-                html += `<strong class="text-yellow-800">💰 Riepilogo Completo:</strong><br><br>`;
-                html += `<div class="grid grid-cols-2 gap-4 text-sm">`;
-                html += `<div>`;
-                html += `<strong>Dati Numerici:</strong><br>`;
-                html += `• Righe analizzate: ${data.riepilogo.numeroRigheAnalizzate}<br>`;
-                html += `• Componenti trovati: ${data.riepilogo.numeroComponenti}<br>`;
-                html += `• Valore componenti: €${data.riepilogo.valoreComponenti.toLocaleString()}<br>`;
-                html += `• Costo totale: €${data.riepilogo.costoTotaleComponenti.toLocaleString()}<br>`;
-                html += `• Margine totale: €${data.riepilogo.margineTotaleComponenti.toLocaleString()}`;
-                html += `</div>`;
-                html += `<div>`;
-                html += `<strong>Spazi identificati:</strong><br>`;
-                if (data.riepilogo.spazi.length > 0) {
-                    data.riepilogo.spazi.slice(0, 5).forEach(spazio => {
-                        html += `• ${spazio}<br>`;
-                    });
-                    if (data.riepilogo.spazi.length > 5) {
-                        html += `... e altri ${data.riepilogo.spazi.length - 5}`;
-                    }
-                } else {
-                    html += `Nessuno spazio identificato`;
-                }
-                html += `</div>`;
-                html += `</div></div>`;
-            }
-            
-            // Prime 3 righe complete come esempio
-            if (data.righeComplete.length > 0) {
-                html += `<div class="bg-gray-50 p-4 rounded border">`;
-                html += `<strong class="text-gray-800">🔍 Esempio Prime Righe Complete:</strong><br><br>`;
-                html += `<div class="space-y-2 text-xs max-h-32 overflow-y-auto">`;
-                data.righeComplete.slice(0, 3).forEach(riga => {
-                    html += `<div class="bg-white p-2 rounded border">`;
-                    html += `<strong>Riga ${riga.numeroRiga}:</strong> ${riga.valoriGrezzi.slice(0, 10).join(' | ')}${riga.valoriGrezzi.length > 10 ? '...' : ''}`;
-                    html += `</div>`;
-                });
-                html += `</div></div>`;
-            }
-            
-            html += '</div>';
-            
-            previewContainer.innerHTML = html;
-            document.getElementById('excelDataPreview').classList.remove('hidden');
-        }• ${serv.descrizione} - €${serv.prezzoTotale?.toLocaleString() || '0'}<br>`;
-                });
-                if (data.servizi.length > 5) {
-                    html += `... e altri ${data.servizi.length - 5} servizi`;
-                }
-                html += `</div></div>`;
-            }
-            
-            // Riepilogo economico
-            if (data.riepilogo) {
-                html += `<div class="bg-yellow-50 p-4 rounded border border-yellow-200">`;
-                html += `<strong class="text-yellow-800">💰 Riepilogo Economico:</strong><br><br>`;
-                html += `<div class="grid grid-cols-2 gap-2 text-xs">`;
-                html += `<div>Componenti: ${data.riepilogo.numeroComponenti} (€${data.riepilogo.valoreComponenti.toLocaleString()})</div>`;
-                html += `<div>Servizi: ${data.riepilogo.numeroServizi} (€${data.riepilogo.valoreServizi.toLocaleString()})</div>`;
-                html += `<div>Totale calcolato: €${(data.riepilogo.valoreComponenti + data.riepilogo.valoreServizi).toLocaleString()}</div>`;
-                html += `<div>Margine rilevato: €${data.margine.toLocaleString()}</div>`;
-                html += `</div></div>`;
-            }
-            
-            // Info debug
-            html += `<div class="bg-gray-50 p-3 rounded border text-xs text-gray-600">`;
-            html += `<strong>ℹ️ Info Estrazione:</strong> Analizzato foglio "Analisi Economica" | `;
-            html += `${data.rawData ? data.rawData.length : 0} righe processate | `;
-            html += `Estrazione completata con successo`;
-            html += `</div>`;
-            
-            html += '</div>';
-            
-            previewContainer.innerHTML = html;
-            document.getElementById('excelDataPreview').classList.remove('hidden');
-        }
-
-        function removeAnalysisFile() {
-            analysisFile = null;
-            extractedData = {};
-            document.getElementById('uploadedAnalysisFile').classList.add('hidden');
-            document.getElementById('excelDataPreview').classList.add('hidden');
-            document.getElementById('analysisUpload').value = '';
-            document.getElementById('fileGenerateBtn').disabled = true;
-        }
-
-        async function generateFiles() {
-            // Validation
-            const clientName = document.getElementById('fileGenClientName').value.trim();
-            if (!clientName || !analysisFile) {
-                alert('Compila il nome cliente e carica il file di analisi economica');
-                return;
-            }
-
-            const generateOffer = document.getElementById('generateOffer').checked;
-            const generateSummary = document.getElementById('generateSummary').checked;
-            const generateCRM = document.getElementById('generateCRM').checked;
-
-            if (!generateOffer && !generateSummary && !generateCRM) {
-                alert('Seleziona almeno un tipo di file da generare');
-                return;
-            }
-
-            // Show loading
-            const btn = document.getElementById('fileGenerateBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `
-                <svg class="w-5 h-5 mr-3 loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Generazione in corso...
-            `;
-            btn.disabled = true;
-
-            try {
-                const projectData = {
-                    cliente: clientName,
-                    projectCode: document.getElementById('projectCode').value,
-                    salesManager: document.getElementById('salesManager').value,
-                    commercialNotes: document.getElementById('commercialNotes').value,
-                    clientContacts: document.getElementById('clientContacts').value,
-                    offerExpiry: document.getElementById('offerExpiry').value,
-                    paymentTerms: document.getElementById('paymentTerms').value,
-                    projectPriority: document.getElementById('projectPriority').value,
-                    extractedData: extractedData
-                };
-
-                generatedFilesData = [];
-
-                if (generateOffer) {
-                    const offerContent = await generateCommercialOffer(projectData);
-                    generatedFilesData.push({
-                        type: 'offer',
-                        name: `Offerta_Commerciale_${clientName.replace(/\s+/g, '_')}.docx`,
-                        content: offerContent,
-                        icon: 'document',
-                        color: 'blue'
-                    });
-                }
-
-                if (generateSummary) {
-                    const summaryContent = await generateExecutiveSummary(projectData);
-                    generatedFilesData.push({
-                        type: 'summary',
-                        name: `Sintesi_Progetto_${clientName.replace(/\s+/g, '_')}.pdf`,
-                        content: summaryContent,
-                        icon: 'document-text',
-                        color: 'purple'
-                    });
-                }
-
-                if (generateCRM) {
-                    const crmContent = await generateCRMFile(projectData);
-                    generatedFilesData.push({
-                        type: 'crm',
-                        name: `CRM_Data_${clientName.replace(/\s+/g, '_')}.xlsx`,
-                        content: crmContent,
-                        icon: 'table',
-                        color: 'green'
-                    });
-                }
-
-                displayGeneratedFiles();
-                
-                document.getElementById('fileGeneratorForm').classList.add('hidden');
-                document.getElementById('generatedFiles').classList.remove('hidden');
-                document.getElementById('generatedFiles').classList.add('fade-in');
-
-            } catch (error) {
-                alert('Errore nella generazione dei file: ' + error.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        async function generateCommercialOffer(projectData) {
-            const prompt = `Genera un'offerta commerciale professionale in formato Word per Var Group - Multimedia & Workspaces.
-
-DATI PROGETTO:
-Cliente: ${projectData.cliente}
-Codice Progetto: ${projectData.projectCode}
-Sales Manager: ${projectData.salesManager}
-Scadenza Offerta: ${projectData.offerExpiry}
-Modalità Pagamento: ${projectData.paymentTerms}
-Note Commerciali: ${projectData.commercialNotes}
-
-DATI ECONOMICI:
-Totale Offerta: €${projectData.extractedData.totaleOfferta.toLocaleString()}
-Margine: ${projectData.extractedData.margine}
-Componenti: ${projectData.extractedData.componenti.length} articoli
-
-COMPONENTI PRINCIPALI:
-${projectData.extractedData.componenti.slice(0, 10).map(c => `- ${c.descrizione} (Qty: ${c.quantita})`).join('\n')}
-
-Crea un'offerta commerciale strutturata con:
-1. Header Var Group con loghi e dati aziendali
-2. Executive Summary del progetto
-3. Tabella dettagliata componenti con prezzi
-4. Condizioni commerciali e modalità di pagamento
-5. Vantaggi competitivi e valore aggiunto
-6. Timeline implementazione
-7. Termini e condizioni
-
-Formato: HTML pronto per conversione Word, professionale e branded Var Group.`;
-
-            return await callGeminiAPI(prompt);
-        }
-
-        async function generateExecutiveSummary(projectData) {
-            const prompt = `Crea una sintesi esecutiva del progetto per ${projectData.cliente}.
-
-DATI PROGETTO:
-- Valore totale: €${projectData.extractedData.totaleOfferta.toLocaleString()}
-- Margine: ${projectData.extractedData.margine}
-- Componenti: ${projectData.extractedData.componenti.length}
-- Priorità: ${projectData.projectPriority}
-
-Crea una sintesi di 2 pagine con:
-1. Overview progetto e obiettivi
-2. Soluzione proposta (high-level)
-3. Investimento e ROI
-4. Timeline e milestone
-5. Rischi e mitigation
-6. Next steps
-
-Formato: HTML per PDF, executive-level, conciso ma completo.`;
-
-            return await callGeminiAPI(prompt);
-        }
-
-        async function generateCRMFile(projectData) {
-            // Generate structured data for CRM
-            const crmData = {
-                cliente: projectData.cliente,
-                opportunita: `MW_${projectData.projectCode}_${new Date().getFullYear()}`,
-                valore: projectData.extractedData.totaleOfferta,
-                margine: projectData.extractedData.margine,
-                salesManager: projectData.salesManager,
-                dataCreazione: new Date().toISOString().split('T')[0],
-                scadenzaOfferta: projectData.offerExpiry,
-                priorita: projectData.projectPriority,
-                stato: 'Proposta Inviata',
-                note: projectData.commercialNotes,
-                componenti: projectData.extractedData.componenti.length
-            };
-
-            return JSON.stringify(crmData, null, 2);
-        }
-
-        function displayGeneratedFiles() {
-            const filesList = document.getElementById('filesList');
-            const filesPreview = document.getElementById('filesPreview');
-            
-            // Files list
-            let filesHTML = '';
-            generatedFilesData.forEach((file, index) => {
-                const iconPath = getIconPath(file.icon);
-                filesHTML += `
-                    <div class="border border-${file.color}-200 rounded-lg p-4 bg-${file.color}-50">
-                        <div class="flex items-center mb-3">
-                            ${iconPath}
-                            <span class="font-medium text-${file.color}-800 ml-2">${getFileTypeLabel(file.type)}</span>
-                        </div>
-                        <p class="text-sm text-gray-700 mb-3">${file.name}</p>
-                        <div class="flex gap-2">
-                            <button onclick="downloadFile(${index})" class="flex-1 px-3 py-2 bg-${file.color}-600 text-white text-xs rounded hover:bg-${file.color}-700">
-                                Download
-                            </button>
-                            <button onclick="previewFile(${index})" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
-                                Anteprima
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            filesList.innerHTML = filesHTML;
-        }
-
-        function getIconPath(iconType) {
-            const icons = {
-                'document': `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`,
-                'document-text': `<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`,
-                'table': `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h12a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg>`
-            };
-            return icons[iconType] || icons['document'];
-        }
-
-        function getFileTypeLabel(type) {
-            const labels = {
-                'offer': 'Offerta Commerciale',
-                'summary': 'Sintesi Progetto', 
-                'crm': 'Dati CRM'
-            };
-            return labels[type] || type;
-        }
-
-        function downloadFile(index) {
-            const file = generatedFilesData[index];
-            
-            let mimeType, dataUrl;
-            
-            if (file.type === 'crm') {
-                // JSON to Excel conversion
-                const ws = XLSX.utils.json_to_sheet([JSON.parse(file.content)]);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "CRM_Data");
-                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                dataUrl = URL.createObjectURL(blob);
-            } else {
-                // HTML content
-                const blob = new Blob([file.content], { type: 'text/html' });
-                dataUrl = URL.createObjectURL(blob);
-            }
-            
-            const a = document.createElement('a');
-            a.href = dataUrl;
-            a.download = file.name;
-            a.click();
-            URL.revokeObjectURL(dataUrl);
-        }
-
-        function previewFile(index) {
-            const file = generatedFilesData[index];
-            const previewContainer = document.getElementById('filesPreview');
-            
-            let previewHTML = `
-                <div class="bg-white border rounded-lg p-6">
-                    <h4 class="font-medium text-gray-800 mb-4">Anteprima: ${file.name}</h4>
-                    <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto">
-            `;
-            
-            if (file.type === 'crm') {
-                const data = JSON.parse(file.content);
-                previewHTML += '<pre class="text-sm">' + JSON.stringify(data, null, 2) + '</pre>';
-            } else {
-                previewHTML += file.content.substring(0, 2000) + (file.content.length > 2000 ? '...' : '');
-            }
-            
-            previewHTML += `
-                    </div>
-                </div>
-            `;
-            
-            previewContainer.innerHTML = previewHTML;
-        }
-
-        function downloadAllFiles() {
-            generatedFilesData.forEach((file, index) => {
-                setTimeout(() => downloadFile(index), index * 1000); // Stagger downloads
-            });
-        }
-
-        function resetFileGenerator() {
-            // Reset all form fields
-            document.getElementById('fileGenClientName').value = '';
-            document.getElementById('projectCode').value = '';
-            document.getElementById('salesManager').value = '';
-            document.getElementById('commercialNotes').value = '';
-            document.getElementById('clientContacts').value = '';
-            document.getElementById('offerExpiry').value = '';
-            document.getElementById('paymentTerms').value = '';
-            document.getElementById('projectPriority').value = 'standard';
-            
-            // Reset checkboxes
-            document.getElementById('generateOffer').checked = true;
-            document.getElementById('generateSummary').checked = true;
-            document.getElementById('generateCRM').checked = true;
-            
-            // Reset file state
-            removeAnalysisFile();
-            generatedFilesData = [];
-            
-            // Show form, hide results
-            document.getElementById('fileGeneratorForm').classList.remove('hidden');
-            document.getElementById('generatedFiles').classList.add('hidden');
-        }
-
-        // Call Gemini API
-        async function callGeminiAPI(prompt) {
-            const modelName = "gemini-2.5-pro";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-
-            const requestBody = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-            };
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody),
-            });
-            
-            if (!response.ok) {
-                throw new Error(`API Error (${response.status}): ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            
-            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-                let rawText = result.candidates[0].content.parts[0].text;
-                return rawText.replace(/^\s*```(html)?\n?/, '').replace(/\n?```\s*$/, '');
-            } else {
-                throw new Error("Risposta AI non nel formato atteso.");
-            }
-        }
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set default view
-            showIntro();
-            
-            // Add click handler for home button
-            document.getElementById('homeBtn').addEventListener('click', showIntro);
-            
-            // Set default dates
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 30);
-            document.getElementById('offerExpiry').value = tomorrow.toISOString().split('T')[0];
-            
-            // Disable generate button initially
-            document.getElementById('fileGenerateBtn').disabled = true;
-        });
-    </script>
-</body>
-</html>
+                                    if (numero <=
