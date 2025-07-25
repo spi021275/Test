@@ -559,7 +559,10 @@
                 margine: 15,          // P - Margine
                 venditaUnitario: 16,  // Q - Vendita Unitario
                 venditaTotale: 17,    // R - Vendita Totale
-                markup: 18            // S - MarkUp
+                markup: 18,           // S - MarkUp
+                colonnaT: 19,         // T - Colonna T
+                colonnaU: 20,         // U - Colonna U
+                colonnaV: 21          // V - Colonna V
             };
 
             // Leggi i dati dalla riga 3 (indice 2) in poi
@@ -602,7 +605,10 @@
                         margine: parseFloat(row[colonne.margine]) || 0,
                         venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
                         venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
-                        markup: parseFloat(row[colonne.markup]) || 0
+                        markup: parseFloat(row[colonne.markup]) || 0,
+                        colonnaT: row[colonne.colonnaT] || '',
+                        colonnaU: row[colonne.colonnaU] || '',
+                        colonnaV: row[colonne.colonnaV] || ''
                     };
 
                     extracted.articoli.push(articolo);
