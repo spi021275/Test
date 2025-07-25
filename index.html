@@ -862,91 +862,227 @@
         async function generateCommercialOffer(projectData) {
             const data = projectData.extractedData;
             
-            const prompt = `Genera un'offerta commerciale professionale in formato HTML che replica ESATTAMENTE il layout del documento Var Group allegato.
+            // Genera contenuto direttamente senza API
+            const dataOdierna = new Date().toLocaleDateString('it-IT');
+            
+            const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.4; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { font-size: 24px; font-weight: bold; color: #1e40af; }
+        .date-location { text-align: left; margin: 20px 0; }
+        .recipient { margin: 20px 0; }
+        .object { font-weight: bold; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        th { background-color: #f0f0f0; font-weight: bold; }
+        .total-row { font-weight: bold; font-size: 16px; }
+        .conditions-table { margin: 30px 0; }
+        .conditions-table td { border: 1px solid #333; padding: 10px; }
+        .signature { margin-top: 50px; }
+        .amount { text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">VAR GROUP S.P.A.</div>
+        <div>Via della Liberazione, 15 - 20098 San Giuliano Milanese (MI)</div>
+        <div>Tel. +39 02 2760141 - Fax +39 02 27604206</div>
+    </div>
 
-DATI PROGETTO:
-Cliente: ${projectData.cliente}
-Codice Progetto: ${projectData.projectCode}
-Sales Manager: ${projectData.salesManager}
-Scadenza Offerta: ${projectData.offerExpiry}
-Modalità Pagamento: ${projectData.paymentTerms}
-Note Commerciali: ${projectData.commercialNotes}
+    <div class="date-location">
+        Cormano (MI), ${dataOdierna}
+    </div>
 
-DATI ECONOMICI ESTRATTI:
-Totale Offerta: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
-Margine: €${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)
-Articoli Totali: ${data.articoli.length}
+    <div class="recipient">
+        <strong>Spett.le</strong><br>
+        <strong>${projectData.cliente.toUpperCase()}</strong><br>
+        [Indirizzo Cliente]<br>
+        [CAP, Città]
+    </div>
 
-STRUTTURA OFFERTA (replica del template Var Group):
-1. HEADER: Logo Var Group + indirizzo + data + destinatario
-2. OGGETTO: Refresh tecnologico [descrizione progetto]
-3. INTRODUZIONE: Breve paragrafo di presentazione
-4. TABELLA ARTICOLI con colonne: Q.tà | Descrizione | Prezzo unitario | Prezzo totale
-5. TOTALE COMPLESSIVO in grassetto
-6. CONDIZIONI DI FORNITURA (tabella): Consegna, IVA, Fatturazione, Validità Offerta, Spese trasporto, Modalità Pagamento
-7. ESCLUSIONI (lista numerata come nell'esempio)
-8. CONDIZIONI GENERALI (come nell'esempio)
-9. FIRMA: "PER ACCETTAZIONE OFFERTA PROT. _______________"
+    <div class="object">
+        <strong>Oggetto: ${projectData.projectCode || 'Refresh tecnologico'}</strong>
+    </div>
 
-ARTICOLI DA INSERIRE (primi 20):
-${data.articoli.slice(0, 20).map(art => 
-    `${art.quantita} | ${art.descrizioneArticolo} | €${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} | €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
-).join('\n')}
+    <p>Con riferimento ai colloqui intercorsi vi sottoponiamo la presente proposta relativa al progetto in oggetto.</p>
 
-IMPORTANTE: 
-- Usa font professionale (Arial, dimensione leggibile)
-- Replica ESATTAMENTE il layout dell'esempio
-- Tabelle con bordi e stile identico
-- Mantieni le stesse sezioni e formattazione
-- Header con logo Var Group posizionato come nell'esempio
-- Usa il nome del cliente fornito: ${projectData.cliente}
+    <h3>SOLUZIONE PROPOSTA</h3>
 
-Formato: HTML completo e professionale per stampa/conversione PDF.`;
+    <table>
+        <thead>
+            <tr>
+                <th>Q.tà</th>
+                <th>Descrizione</th>
+                <th>Prezzo unitario</th>
+                <th>Prezzo totale</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data.articoli.slice(0, 20).map(art => `
+            <tr>
+                <td>${art.quantita}</td>
+                <td>${art.descrizioneArticolo}</td>
+                <td class="amount">€ ${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+            </tr>
+            `).join('')}
+            <tr class="total-row">
+                <td colspan="3" style="text-align: right;"><strong>TOTALE COMPLESSIVO:</strong></td>
+                <td class="amount"><strong>€ ${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+            </tr>
+        </tbody>
+    </table>
 
-            return await callGeminiAPI(prompt);
+    <h3>CONDIZIONI DI FORNITURA</h3>
+    <table class="conditions-table">
+        <tr>
+            <td><strong>Consegna</strong></td>
+            <td>Da concordare</td>
+        </tr>
+        <tr>
+            <td><strong>Iva</strong></td>
+            <td>Esclusa</td>
+        </tr>
+        <tr>
+            <td><strong>Validità Offerta</strong></td>
+            <td>${projectData.offerExpiry || '30 giorni dalla data della presente offerta'}</td>
+        </tr>
+        <tr>
+            <td><strong>Spese di trasporto</strong></td>
+            <td>Incluse</td>
+        </tr>
+        <tr>
+            <td><strong>Modalità e Termini di Pagamento</strong></td>
+            <td>${projectData.paymentTerms || 'Da concordare'}</td>
+        </tr>
+    </table>
+
+    <div class="signature">
+        <p>Siamo a Vostra disposizione per qualsiasi chiarimento tecnico o commerciale e cogliamo l'occasione per porgervi i nostri migliori saluti.</p>
+        
+        <p><strong>Var Group S.p.A.</strong></p>
+        <p><em>${projectData.salesManager || 'Sales Manager'}</em></p>
+        
+        <br><br>
+        <p><strong>PER ACCETTAZIONE OFFERTA PROT. _______________________</strong></p>
+    </div>
+</body>
+</html>`;
+
+            return htmlContent;
         }
 
         async function generateExecutiveSummary(projectData) {
             const data = projectData.extractedData;
             
-            // Genera solo le colonne I, J, R, U come richiesto
-            const sintesiArticoli = data.articoli.map(art => ({
-                listinoUnitario: art.listinoUnitario,     // Colonna I
-                costoUnitario: art.costoUnitario,         // Colonna J  
-                venditaTotale: art.venditaTotale,         // Colonna R
-                colonnaU: art.colonnaU                    // Colonna U
-            }));
+            // Genera sintesi economica con solo colonne I, J, R, U
+            const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.4; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e40af; padding-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #1e40af; color: white; font-weight: bold; }
+        .amount { text-align: right; }
+        .total-row { font-weight: bold; background-color: #f0f8ff; }
+        .summary { background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SINTESI ECONOMICA</h1>
+        <h2>${projectData.cliente}</h2>
+        <p>Data: ${new Date().toLocaleDateString('it-IT')} | Progetto: ${projectData.projectCode || 'N/A'}</p>
+    </div>
 
-            const prompt = `Crea una sintesi economica del progetto per ${projectData.cliente}.
+    <div class="summary">
+        <h3>Riepilogo Progetto</h3>
+        <p><strong>Totale Offerta:</strong> € ${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+        <p><strong>Margine:</strong> € ${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</p>
+        <p><strong>Articoli:</strong> ${data.articoli.length}</p>
+    </div>
 
-FOCUS: Solo colonne economiche essenziali (I, J, R, U dall'analisi DSA)
+    <h3>Dettaglio Economico (Colonne I, J, R, U)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Articolo</th>
+                <th>Listino Unitario (I)</th>
+                <th>Costo Unitario (J)</th>
+                <th>Vendita Totale (R)</th>
+                <th>Colonna U</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data.articoli.slice(0, 25).map((art, index) => `
+            <tr>
+                <td>${art.descrizioneArticolo.substring(0, 40)}${art.descrizioneArticolo.length > 40 ? '...' : ''}</td>
+                <td class="amount">€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td class="amount">€ ${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                <td>${art.colonnaU || '-'}</td>
+            </tr>
+            `).join('')}
+            <tr class="total-row">
+                <td><strong>TOTALI</strong></td>
+                <td class="amount"><strong>€ ${data.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.articoli.reduce((sum, art) => sum + art.costoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td><strong>-</strong></td>
+            </tr>
+        </tbody>
+    </table>
 
-DATI PROGETTO:
-- Cliente: ${projectData.cliente}
-- Valore totale: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
-- Margine: €${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)
-- Articoli: ${data.articoli.length}
+    <div class="summary">
+        <h3>Note</h3>
+        <p>Sintesi economica estratta automaticamente dall'Analisi Economica DSA.</p>
+        <p>Documento generato il: ${new Date().toLocaleString('it-IT')}</p>
+        ${projectData.commercialNotes ? `<p><strong>Note commerciali:</strong> ${projectData.commercialNotes}</p>` : ''}
+    </div>
+</body>
+</html>`;
 
-TABELLA SINTESI ECONOMICA (solo colonne I, J, R, U):
-| Listino Unitario (I) | Costo Unitario (J) | Vendita Totale (R) | Colonna U |
-${sintesiArticoli.slice(0, 15).map(art => 
-    `| €${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} | €${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} | €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} | ${art.colonnaU} |`
-).join('\n')}
+            return htmlContent;
+        }
 
-TOTALI:
-- Totale Listino: €${sintesiArticoli.reduce((sum, art) => sum + art.listinoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}
-- Totale Costi: €${sintesiArticoli.reduce((sum, art) => sum + art.costoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}
-- Totale Vendita: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
+        async function generateCRMFile(projectData) {
+            const data = projectData.extractedData;
+            
+            // Genera contenuto CSV/testo per CRM
+            const crmData = {
+                cliente: projectData.cliente,
+                opportunita: `MW_${projectData.projectCode}_${new Date().getFullYear()}`,
+                dataCreazione: new Date().toISOString().split('T')[0],
+                salesManager: projectData.salesManager,
+                valoreOfferta: data.totaleOfferta,
+                margineEuro: data.margineEuro,
+                marginePercentuale: data.marginePercentuale.toFixed(2),
+                scadenzaOfferta: projectData.offerExpiry,
+                modalitaPagamento: projectData.paymentTerms,
+                priorita: projectData.projectPriority,
+                stato: 'Proposta Inviata',
+                articoliTotali: data.articoli.length,
+                sezioniCoperte: Object.keys(data.riepilogoPerSezione).length,
+                noteCommerciali: projectData.commercialNotes,
+                contattiCliente: projectData.clientContacts,
+                // Breakdown per tipo
+                tecnologia: data.riepilogoPerTipo['Tecnologia']?.venditaTotale || 0,
+                servizio: data.riepilogoPerTipo['Servizio']?.venditaTotale || 0,
+                manutenzione: data.riepilogoPerTipo['Manutenzione']?.venditaTotale || 0,
+                licenze: data.riepilogoPerTipo['Sottoscrizione Licenza']?.venditaTotale || 0,
+                altro: data.riepilogoPerTipo['Altro']?.venditaTotale || 0
+            };
 
-Crea una sintesi economica strutturata con:
-1. Header con titolo "SINTESI ECONOMICA - ${projectData.cliente}"
-2. Tabella con SOLO le 4 colonne specificate (I, J, R, U)
-3. Totali in fondo
-4. Layout pulito e leggibile per executive
-
-Formato: HTML tabellare per conversione PDF.`;
-
-            return await callGeminiAPI(prompt);
+            return JSON.stringify(crmData, null, 2);
         }
 
         async function generateCRMFile(projectData) {
