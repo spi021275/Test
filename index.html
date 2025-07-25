@@ -54,7 +54,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                             </svg>
                             <h3 class="text-xl font-semibold text-gray-800 mb-2">Analizza Meeting & Genera Brief DSA</h3>
-                            <p class="text-gray-600 mb-4">Analizza appunti del meeting, estrai requisiti e genera brief strutturato per il team DSA sfruttando l'expertise di 51 anni, partnership certificate e soluzioni proprietarie (Spacebooking, Agrid Welcome/Bank).</p>
+                            <p class="text-gray-600 mb-4">Analizza appunti del meeting, estrai requisiti e genera brief strutturato per il team DSA sfruttando l'expertise di 51 anni, partnership certificate e soluzioni proprietarie.</p>
                             <button onclick="showPostMeeting()" class="w-full inline-flex items-center justify-center px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
                                 Inizia
                                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
                             </button>
                         </div>
 
-                        <!-- Module 3 - NUOVO -->
+                        <!-- Module 3 - UPDATED -->
                         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-green-300 transition-all">
                             <svg class="w-10 h-10 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -97,7 +97,7 @@
             </div>
         </div>
 
-        <!-- Post Meeting Module (ORIGINAL CODE KEPT) -->
+        <!-- Post Meeting Module (EXISTING) -->
         <div id="postMeetingSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -108,11 +108,15 @@
                 </button>
                 
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Analizza Meeting & Genera Brief DSA</h2>
-                <p class="text-gray-600 mb-8">Modulo 1 - Mantiene tutte le funzionalità originali</p>
+                <p class="text-gray-600 mb-8">Trasforma i tuoi appunti del meeting in un brief tecnico strutturato per il team DSA utilizzando l'expertise completa della BU (51 anni esperienza, 823M€ fatturato, 3.850 persone)</p>
+                
+                <div class="text-center py-12">
+                    <p class="text-gray-500">Modulo 1 - Funzionalità esistente mantenuta</p>
+                </div>
             </div>
         </div>
 
-        <!-- Space Wizard Module (ORIGINAL CODE KEPT) -->
+        <!-- Space Wizard Module (EXISTING) -->
         <div id="spaceWizardSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -123,11 +127,15 @@
                 </button>
                 
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Wizard Spazi Collaborativi</h2>
-                <p class="text-gray-600 mb-8">Modulo 2 - Mantiene tutte le funzionalità originali</p>
+                <p class="text-gray-600 mb-8">Configura la soluzione tecnologica ottimale per il tuo spazio con analisi AI automatica da foto/planimetrie o inserimento manuale</p>
+                
+                <div class="text-center py-12">
+                    <p class="text-gray-500">Modulo 2 - Funzionalità esistente mantenuta</p>
+                </div>
             </div>
         </div>
 
-        <!-- File Generator Module - NUOVO -->
+        <!-- File Generator Module - UPDATED -->
         <div id="fileGeneratorSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -169,7 +177,7 @@
                                 <span class="text-sm text-green-700 font-medium">Carica Analisi Economica DSA</span>
                                 <span class="text-xs text-green-600 mt-1">.xlsx, .xlsm, .xls (max 10MB)</span>
                             </div>
-                            <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xlsm,.xls">
+                            <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xlsm,.xls" onchange="handleAnalysisUpload(event)">
                             
                             <!-- Uploaded File Display -->
                             <div id="uploadedAnalysisFile" class="mt-4 hidden">
@@ -190,7 +198,7 @@
                             
                             <!-- Excel Data Preview -->
                             <div id="excelDataPreview" class="mt-4 hidden">
-                                <h4 class="font-medium text-gray-800 mb-2">Anteprima Dati Estratti dal Foglio "Analisi Economica"</h4>
+                                <h4 class="font-medium text-gray-800 mb-2">Anteprima Dati Estratti</h4>
                                 <div class="bg-white p-4 rounded-lg border max-h-60 overflow-y-auto">
                                     <div id="excelPreviewContent" class="text-sm text-gray-700"></div>
                                 </div>
@@ -198,9 +206,76 @@
                         </div>
                     </div>
 
+                    <!-- Configurazione Output -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">File da Generare</label>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 border-green-200 bg-green-50">
+                                <input type="checkbox" id="generateOffer" class="mr-3 text-green-600" checked>
+                                <div>
+                                    <span class="font-medium text-gray-800">Offerta Commerciale Word</span>
+                                    <p class="text-xs text-gray-600 mt-1">Per Sales Manager VAR</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 border-green-200 bg-green-50">
+                                <input type="checkbox" id="generateSummary" class="mr-3 text-green-600" checked>
+                                <div>
+                                    <span class="font-medium text-gray-800">Sintesi Dati PDF</span>
+                                    <p class="text-xs text-gray-600 mt-1">Executive summary progetto</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 border-green-200 bg-green-50">
+                                <input type="checkbox" id="generateCRM" class="mr-3 text-green-600" checked>
+                                <div>
+                                    <span class="font-medium text-gray-800">File Excel CRM</span>
+                                    <p class="text-xs text-gray-600 mt-1">Dati strutturati per caricamento CRM</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Parametri Personalizzazione -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h4 class="font-medium text-gray-800 mb-4">Personalizzazione Output</h4>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Note Commerciali</label>
+                                <textarea id="commercialNotes" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Note aggiuntive per l'offerta commerciale..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contatti Cliente</label>
+                                <textarea id="clientContacts" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Referenti cliente, email, telefoni..."></textarea>
+                            </div>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Data Scadenza Offerta</label>
+                                <input type="date" id="offerExpiry" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Modalità Pagamento</label>
+                                <select id="paymentTerms" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                    <option value="">Seleziona...</option>
+                                    <option value="30gg">30 giorni fine mese</option>
+                                    <option value="60gg">60 giorni fine mese</option>
+                                    <option value="90gg">90 giorni fine mese</option>
+                                    <option value="custom">Personalizzato</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Priorità Progetto</label>
+                                <select id="projectPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                    <option value="standard">Standard</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="critica">Critica</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Generate Button -->
                     <div class="text-center">
-                        <button onclick="generateFiles()" id="fileGenerateBtn" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium text-lg rounded-lg hover:bg-green-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <button onclick="generateFiles()" id="fileGenerateBtn" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium text-lg rounded-lg hover:bg-green-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
@@ -213,16 +288,30 @@
                 <div id="generatedFiles" class="hidden space-y-6">
                     <div class="flex justify-between items-center">
                         <h3 class="text-2xl font-bold text-gray-800">File Generati</h3>
-                        <button onclick="resetFileGenerator()" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                            Nuova Generazione
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="downloadAllFiles()" class="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Download Tutti i File
+                            </button>
+                            <button onclick="resetFileGenerator()" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Nuova Generazione
+                            </button>
+                        </div>
                     </div>
                     
-                    <div id="generatedFilesContent" class="bg-gray-50 p-6 rounded-lg">
-                        <!-- Generated content will be inserted here -->
+                    <!-- Files List -->
+                    <div id="filesList" class="grid md:grid-cols-3 gap-6">
+                        <!-- Generated files will be displayed here -->
+                    </div>
+                    
+                    <!-- File Contents Preview -->
+                    <div id="filesPreview" class="space-y-6">
+                        <!-- File previews will be displayed here -->
                     </div>
                 </div>
             </div>
@@ -247,6 +336,7 @@
         // State management
         let analysisFile = null;
         let extractedData = {};
+        let generatedFilesData = [];
 
         // Navigation functions
         function showIntro() {
@@ -281,7 +371,7 @@
             document.getElementById('homeBtn').classList.remove('hidden');
         }
 
-        // File Generator Functions
+        // File Generator Functions - UPDATED
         async function handleAnalysisUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -293,7 +383,7 @@
                 return;
             }
 
-            if (file.size > 10 * 1024 * 1024) {
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
                 alert('Il file è troppo grande. Limite massimo: 10MB');
                 return;
             }
@@ -338,20 +428,22 @@
                 reader.onload = function(e) {
                     try {
                         const data = e.target.result;
+                        // Supporto per .xlsm (Excel con macro) e altri formati
                         const workbook = XLSX.read(data, { 
                             type: 'binary',
-                            cellFormulas: false,
-                            cellStyles: false,
-                            sheetStubs: true
+                            cellFormulas: false, // Ignora le formule per sicurezza
+                            cellStyles: false,   // Non serve per l'estrazione dati
+                            sheetStubs: true     // Include celle vuote
                         });
                         
                         const result = {};
                         workbook.SheetNames.forEach(sheetName => {
                             const sheet = workbook.Sheets[sheetName];
+                            // Converti in JSON con header numerico per maggiore flessibilità
                             result[sheetName] = XLSX.utils.sheet_to_json(sheet, { 
                                 header: 1,
-                                defval: '',
-                                raw: false
+                                defval: '',  // Valore default per celle vuote
+                                raw: false   // Converti tutto in stringhe per parsing uniforme
                             });
                         });
                         
@@ -374,114 +466,628 @@
                 cliente: '',
                 progetto: '',
                 totaleOfferta: 0,
-                margine: 0,
-                componenti: [],
-                righeComplete: [],
-                headers: [],
-                riepilogo: {},
+                marginePercentuale: 0,
+                margineEuro: 0,
+                timeline: '',
+                articoli: [],
+                riepilogoPerTipo: {},
+                riepilogoPerSezione: {},
                 sheets: Object.keys(excelData),
-                dataFound: false,
-                numeroRighe: 0,
-                numeroColonne: 0
+                errori: []
             };
 
-            // Cerca specificamente il foglio "Analisi Economica"
-            const targetSheetNames = [
-                'Analisi Economica',
-                'analisi economica', 
-                'ANALISI ECONOMICA',
-                'Analisi_Economica',
-                'AnalisiEconomica'
-            ];
-
-            let targetSheet = null;
+            // Cerca il foglio "Analisi Economica"
+            let analisiSheet = null;
             let sheetName = '';
-
-            for (const name of targetSheetNames) {
-                if (excelData[name]) {
-                    targetSheet = excelData[name];
+            
+            Object.keys(excelData).forEach(name => {
+                if (name.toLowerCase().includes('analisi economica') || 
+                    name.toLowerCase().includes('analisieconomica') ||
+                    name.toLowerCase() === 'analisi economica') {
+                    analisiSheet = excelData[name];
                     sheetName = name;
-                    extracted.dataFound = true;
-                    break;
                 }
-            }
+            });
 
-            if (!targetSheet) {
-                for (const name of Object.keys(excelData)) {
-                    const lowerName = name.toLowerCase();
-                    if (lowerName.includes('analisi') && lowerName.includes('economica')) {
-                        targetSheet = excelData[name];
-                        sheetName = name;
-                        extracted.dataFound = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!targetSheet) {
-                console.warn('Foglio "Analisi Economica" non trovato. Fogli disponibili:', Object.keys(excelData));
+            if (!analisiSheet) {
+                extracted.errori.push('Foglio "Analisi Economica" non trovato');
                 return extracted;
             }
 
-            extracted.numeroRighe = targetSheet.length;
-            extracted.numeroColonne = Math.max(...targetSheet.map(row => row ? row.length : 0));
+            // Definizione colonne (indici da 0)
+            const colonne = {
+                sezione: 0,           // A - Sezione Descrizione Attività
+                areaInteresse: 1,     // B - Area di Interesse
+                sottocategoria: 2,    // C - Sottocategoria
+                tipoArticolo: 3,      // D - Tipo Articolo
+                produttore: 4,        // E - Produttore - Vendor
+                codiceArticolo: 5,    // F - Codice Articolo Produttore
+                descrizioneArticolo: 6, // G - Descrizione Articolo
+                quantita: 7,          // H - Q.tà
+                listinoUnitario: 8,   // I - Listino Unitario
+                costoUnitario: 9,     // J - Costo Unitario
+                scontoBase: 10,       // K - Sconto Base (%)
+                scontoAgg1: 11,       // L - Sconto Aggiuntivo 1 (%)
+                scontoAgg2: 12,       // M - Sconto Aggiuntivo 2 (%)
+                costoUnitarioFinale: 13, // N - Costo Unitario
+                costoTotale: 14,      // O - Costo Totale
+                margine: 15,          // P - Margine
+                venditaUnitario: 16,  // Q - Vendita Unitario
+                venditaTotale: 17,    // R - Vendita Totale
+                markup: 18            // S - MarkUp
+            };
 
-            // Estrai tutte le righe
-            targetSheet.forEach((row, rowIndex) => {
-                if (!row) return;
+            // Leggi i dati dalla riga 3 (indice 2) in poi
+            for (let i = 2; i < analisiSheet.length; i++) {
+                const row = analisiSheet[i];
                 
-                const hasContent = row.some(cell => cell && cell.toString().trim());
+                // Controlla se la riga è vuota o è un subtotale
+                if (!row || row.length === 0) continue;
+                
+                // Salta righe di subtotali (che di solito hanno descrizioni come "Totale", "Subtotale", etc.)
+                const descrizione = row[colonne.descrizioneArticolo];
+                if (!descrizione || 
+                    descrizione.toString().toLowerCase().includes('totale') ||
+                    descrizione.toString().toLowerCase().includes('subtotale') ||
+                    descrizione.toString().toLowerCase().includes('sub-totale')) {
+                    continue;
+                }
 
-                if (hasContent) {
-                    const rigaCompleta = {
-                        numeroRiga: rowIndex + 1,
-                        valoriGrezzi: [],
-                        dati: {}
+                // Estrai solo righe con dati validi (almeno descrizione e quantità)
+                const quantita = parseFloat(row[colonne.quantita]) || 0;
+                if (descrizione && quantita > 0) {
+                    
+                    const articolo = {
+                        riga: i + 1, // Numero riga Excel (base 1)
+                        sezione: row[colonne.sezione] || '',
+                        areaInteresse: row[colonne.areaInteresse] || '',
+                        sottocategoria: row[colonne.sottocategoria] || '',
+                        tipoArticolo: row[colonne.tipoArticolo] || '',
+                        produttore: row[colonne.produttore] || '',
+                        codiceArticolo: row[colonne.codiceArticolo] || '',
+                        descrizioneArticolo: descrizione.toString(),
+                        quantita: quantita,
+                        listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
+                        costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
+                        scontoBase: parseFloat(row[colonne.scontoBase]) || 0,
+                        scontoAgg1: parseFloat(row[colonne.scontoAgg1]) || 0,
+                        scontoAgg2: parseFloat(row[colonne.scontoAgg2]) || 0,
+                        costoUnitarioFinale: parseFloat(row[colonne.costoUnitarioFinale]) || 0,
+                        costoTotale: parseFloat(row[colonne.costoTotale]) || 0,
+                        margine: parseFloat(row[colonne.margine]) || 0,
+                        venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
+                        venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
+                        markup: parseFloat(row[colonne.markup]) || 0
                     };
 
-                    row.forEach((cell, colIndex) => {
-                        const valore = cell ? cell.toString().trim() : '';
-                        rigaCompleta.valoriGrezzi.push(valore);
-                        rigaCompleta.dati[`col_${colIndex + 1}`] = valore;
+                    extracted.articoli.push(articolo);
+                }
+            }
+
+            // Calcola totali e riepiloghi
+            extracted.totaleOfferta = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
+            extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
+            extracted.marginePercentuale = extracted.totaleOfferta > 0 ? 
+                (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
+
+            // Riepilogo per tipo articolo
+            extracted.articoli.forEach(art => {
+                const tipo = art.tipoArticolo || 'Non Specificato';
+                if (!extracted.riepilogoPerTipo[tipo]) {
+                    extracted.riepilogoPerTipo[tipo] = {
+                        quantita: 0,
+                        costoTotale: 0,
+                        venditaTotale: 0,
+                        margine: 0,
+                        articoli: 0
+                    };
+                }
+                extracted.riepilogoPerTipo[tipo].quantita += art.quantita;
+                extracted.riepilogoPerTipo[tipo].costoTotale += art.costoTotale;
+                extracted.riepilogoPerTipo[tipo].venditaTotale += art.venditaTotale;
+                extracted.riepilogoPerTipo[tipo].margine += art.margine;
+                extracted.riepilogoPerTipo[tipo].articoli += 1;
+            });
+
+            // Riepilogo per sezione
+            extracted.articoli.forEach(art => {
+                const sezione = art.sezione || 'Non Specificato';
+                if (!extracted.riepilogoPerSezione[sezione]) {
+                    extracted.riepilogoPerSezione[sezione] = {
+                        quantita: 0,
+                        costoTotale: 0,
+                        venditaTotale: 0,
+                        margine: 0,
+                        articoli: 0
+                    };
+                }
+                extracted.riepilogoPerSezione[sezione].quantita += art.quantita;
+                extracted.riepilogoPerSezione[sezione].costoTotale += art.costoTotale;
+                extracted.riepilogoPerSezione[sezione].venditaTotale += art.venditaTotale;
+                extracted.riepilogoPerSezione[sezione].margine += art.margine;
+                extracted.riepilogoPerSezione[sezione].articoli += 1;
+            });
+
+            return extracted;
+        }
+
+        function displayExcelPreview(data) {
+            const previewContainer = document.getElementById('excelPreviewContent');
+            
+            let html = '<div class="space-y-3">';
+            
+            // Errori eventuali
+            if (data.errori.length > 0) {
+                html += `<div class="bg-red-50 p-3 rounded border border-red-200">`;
+                html += `<strong class="text-red-800">Errori:</strong><br>`;
+                data.errori.forEach(errore => {
+                    html += `• ${errore}<br>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Dati principali estratti
+            html += `<div class="bg-blue-50 p-3 rounded border">`;
+            html += `<strong>Analisi Economica DSA - Dati Estratti:</strong><br>`;
+            html += `Totale Offerta: <strong>€${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Margine: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong><br>`;
+            html += `Articoli Estratti: <strong>${data.articoli.length}</strong><br>`;
+            html += `Fogli nel File: ${data.sheets.join(', ')}`;
+            html += `</div>`;
+            
+            // Riepilogo per tipo articolo
+            if (Object.keys(data.riepilogoPerTipo).length > 0) {
+                html += `<div class="bg-green-50 p-3 rounded border">`;
+                html += `<strong>Riepilogo per Tipo Articolo:</strong><br>`;
+                Object.entries(data.riepilogoPerTipo).forEach(([tipo, totali]) => {
+                    html += `• <strong>${tipo}</strong>: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Riepilogo per sezione
+            if (Object.keys(data.riepilogoPerSezione).length > 0) {
+                html += `<div class="bg-purple-50 p-3 rounded border">`;
+                html += `<strong>Riepilogo per Sezione:</strong><br>`;
+                Object.entries(data.riepilogoPerSezione).slice(0, 5).forEach(([sezione, totali]) => {
+                    html += `• <strong>${sezione}</strong>: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
+                });
+                if (Object.keys(data.riepilogoPerSezione).length > 5) {
+                    html += `... e altre ${Object.keys(data.riepilogoPerSezione).length - 5} sezioni<br>`;
+                }
+                html += `</div>`;
+            }
+            
+            // Esempio articoli
+            if (data.articoli.length > 0) {
+                html += `<div class="bg-yellow-50 p-3 rounded border">`;
+                html += `<strong>Primi Articoli Estratti:</strong><br>`;
+                data.articoli.slice(0, 3).forEach(art => {
+                    html += `• <strong>${art.descrizioneArticolo}</strong><br>`;
+                    html += `&nbsp;&nbsp;Qty: ${art.quantita}, Prezzo: €${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}, Totale: €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
+                    html += `&nbsp;&nbsp;Tipo: ${art.tipoArticolo}, Produttore: ${art.produttore}<br><br>`;
+                });
+                if (data.articoli.length > 3) {
+                    html += `... e altri ${data.articoli.length - 3} articoli`;
+                }
+                html += `</div>`;
+            }
+            
+            html += '</div>';
+            
+            previewContainer.innerHTML = html;
+            document.getElementById('excelDataPreview').classList.remove('hidden');
+        }
+
+        function removeAnalysisFile() {
+            analysisFile = null;
+            extractedData = {};
+            document.getElementById('uploadedAnalysisFile').classList.add('hidden');
+            document.getElementById('excelDataPreview').classList.add('hidden');
+            document.getElementById('analysisUpload').value = '';
+            document.getElementById('fileGenerateBtn').disabled = true;
+        }
+
+        async function generateFiles() {
+            // Validation
+            const clientName = document.getElementById('fileGenClientName').value.trim();
+            if (!clientName || !analysisFile) {
+                alert('Compila il nome cliente e carica il file di analisi economica');
+                return;
+            }
+
+            const generateOffer = document.getElementById('generateOffer').checked;
+            const generateSummary = document.getElementById('generateSummary').checked;
+            const generateCRM = document.getElementById('generateCRM').checked;
+
+            if (!generateOffer && !generateSummary && !generateCRM) {
+                alert('Seleziona almeno un tipo di file da generare');
+                return;
+            }
+
+            // Show loading
+            const btn = document.getElementById('fileGenerateBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `
+                <svg class="w-5 h-5 mr-3 loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Generazione in corso...
+            `;
+            btn.disabled = true;
+
+            try {
+                const projectData = {
+                    cliente: clientName,
+                    projectCode: document.getElementById('projectCode').value,
+                    salesManager: document.getElementById('salesManager').value,
+                    commercialNotes: document.getElementById('commercialNotes').value,
+                    clientContacts: document.getElementById('clientContacts').value,
+                    offerExpiry: document.getElementById('offerExpiry').value,
+                    paymentTerms: document.getElementById('paymentTerms').value,
+                    projectPriority: document.getElementById('projectPriority').value,
+                    extractedData: extractedData
+                };
+
+                generatedFilesData = [];
+
+                if (generateOffer) {
+                    const offerContent = await generateCommercialOffer(projectData);
+                    generatedFilesData.push({
+                        type: 'offer',
+                        name: `Offerta_Commerciale_${clientName.replace(/\s+/g, '_')}.docx`,
+                        content: offerContent,
+                        icon: 'document',
+                        color: 'blue'
                     });
+                }
 
-                    extracted.righeComplete.push(rigaCompleta);
+                if (generateSummary) {
+                    const summaryContent = await generateExecutiveSummary(projectData);
+                    generatedFilesData.push({
+                        type: 'summary',
+                        name: `Sintesi_Progetto_${clientName.replace(/\s+/g, '_')}.pdf`,
+                        content: summaryContent,
+                        icon: 'document-text',
+                        color: 'purple'
+                    });
+                }
 
-                    // Analisi per componenti - esempio riga: 1 Auditorium Smart Room...
-                    const primaColonna = rigaCompleta.valoriGrezzi[0] || '';
-                    if (primaColonna && !isNaN(parseInt(primaColonna))) {
-                        const componente = {
-                            riga: rowIndex + 1,
-                            numeroProgressivo: parseInt(primaColonna),
-                            spazio: rigaCompleta.valoriGrezzi[1] || '',
-                            tipologia: rigaCompleta.valoriGrezzi[2] || '',
-                            categoria: rigaCompleta.valoriGrezzi[3] || '',
-                            codice: '',
-                            descrizione: '',
-                            quantita: 0,
-                            prezzoUnitario: 0,
-                            prezzoTotale: 0,
-                            costoUnitario: 0,
-                            costoTotale: 0,
-                            margineUnitario: 0,
-                            margineTotale: 0,
-                            valoriCompleti: rigaCompleta.valoriGrezzi
-                        };
+                if (generateCRM) {
+                    const crmContent = await generateCRMFile(projectData);
+                    generatedFilesData.push({
+                        type: 'crm',
+                        name: `CRM_Data_${clientName.replace(/\s+/g, '_')}.xlsx`,
+                        content: crmContent,
+                        icon: 'table',
+                        color: 'green'
+                    });
+                }
 
-                        // Cerca dati nelle colonne successive
-                        for (let i = 4; i < rigaCompleta.valoriGrezzi.length; i++) {
-                            const valore = rigaCompleta.valoriGrezzi[i];
-                            if (valore) {
-                                // Codice prodotto (es. EB-L630U)
-                                if (/^[A-Z0-9\-]{3,20}$/i.test(valore) && !componente.codice) {
-                                    componente.codice = valore;
-                                }
-                                // Descrizione (es. "Proiettore laser, 6200 lumens")
-                                else if (valore.length > 10 && valore.includes(' ') && !componente.descrizione) {
-                                    componente.descrizione = valore;
-                                }
-                                // Numeri (qty, prezzi, costi)
-                                else if (!isNaN(parseFloat(valore.replace(/[€\s\.,]/g, '').replace(',', '.')))) {
-                                    const numero = parseFloat(valore.replace(/[€\s\.,]/g, '').replace(',', '.'));
-                                    
-                                    if (numero <=
+                displayGeneratedFiles();
+                
+                document.getElementById('fileGeneratorForm').classList.add('hidden');
+                document.getElementById('generatedFiles').classList.remove('hidden');
+                document.getElementById('generatedFiles').classList.add('fade-in');
+
+            } catch (error) {
+                alert('Errore nella generazione dei file: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function generateCommercialOffer(projectData) {
+            const data = projectData.extractedData;
+            
+            const prompt = `Genera un'offerta commerciale professionale in formato HTML per Var Group - Multimedia & Workspaces.
+
+DATI PROGETTO:
+Cliente: ${projectData.cliente}
+Codice Progetto: ${projectData.projectCode}
+Sales Manager: ${projectData.salesManager}
+Scadenza Offerta: ${projectData.offerExpiry}
+Modalità Pagamento: ${projectData.paymentTerms}
+Note Commerciali: ${projectData.commercialNotes}
+
+DATI ECONOMICI:
+Totale Offerta: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
+Margine: €${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)
+Articoli Totali: ${data.articoli.length}
+
+RIEPILOGO PER TIPO ARTICOLO:
+${Object.entries(data.riepilogoPerTipo).map(([tipo, totali]) => 
+    `- ${tipo}: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
+).join('\n')}
+
+RIEPILOGO PER SEZIONE:
+${Object.entries(data.riepilogoPerSezione).slice(0, 10).map(([sezione, totali]) => 
+    `- ${sezione}: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
+).join('\n')}
+
+ARTICOLI PRINCIPALI (primi 15):
+${data.articoli.slice(0, 15).map(art => 
+    `- ${art.descrizioneArticolo} (${art.produttore}) - Qty: ${art.quantita} - €${art.venditaUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})} cad. - Tot: €${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
+).join('\n')}
+
+Crea un'offerta commerciale strutturata con:
+1. Header Var Group con logo e dati aziendali
+2. Dati cliente e riferimenti progetto
+3. Executive Summary della soluzione
+4. Tabelle dettagliate per sezione/tipo articolo
+5. Riepilogo economico con totali e margini
+6. Condizioni commerciali e modalità di pagamento
+7. Vantaggi competitivi Var Group (51 anni esperienza, partnership certificate)
+8. Timeline implementazione standard
+9. Termini e condizioni
+
+Formato: HTML ben strutturato e professionale, pronto per conversione Word/PDF.`;
+
+            return await callGeminiAPI(prompt);
+        }
+
+        async function generateExecutiveSummary(projectData) {
+            const data = projectData.extractedData;
+            
+            const prompt = `Crea una sintesi esecutiva del progetto per ${projectData.cliente}.
+
+DATI PROGETTO:
+- Valore totale: €${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}
+- Margine: €${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)
+- Articoli totali: ${data.articoli.length}
+- Priorità: ${projectData.projectPriority}
+
+BREAKDOWN SOLUZIONI:
+${Object.entries(data.riepilogoPerTipo).map(([tipo, totali]) => 
+    `- ${tipo}: €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${totali.articoli} componenti)`
+).join('\n')}
+
+AREE COPERTE:
+${Object.entries(data.riepilogoPerSezione).map(([sezione, totali]) => 
+    `- ${sezione}: €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}`
+).join('\n')}
+
+Crea una sintesi esecutiva di 2 pagine con:
+1. Overview progetto e valore strategico
+2. Soluzione proposta per aree (Audio, Video, Collaboration, etc.)
+3. Breakdown investimento per tipologia
+4. ROI e benefici attesi
+5. Timeline implementazione (standard 8-12 settimane)
+6. Rischi principali e piani di mitigazione
+7. Next steps e milestone decision
+
+Formato: HTML professionale per conversione PDF, executive-level, linguaggio business.`;
+
+            return await callGeminiAPI(prompt);
+        }
+
+        async function generateCRMFile(projectData) {
+            const data = projectData.extractedData;
+            
+            // Generate structured data for CRM with detailed breakdown
+            const crmData = {
+                // Dati base opportunità
+                cliente: projectData.cliente,
+                opportunita: `MW_${projectData.projectCode}_${new Date().getFullYear()}`,
+                dataCreazione: new Date().toISOString().split('T')[0],
+                salesManager: projectData.salesManager,
+                
+                // Dati economici
+                valoreOfferta: data.totaleOfferta,
+                margineEuro: data.margineEuro,
+                marginePercentuale: data.marginePercentuale.toFixed(2),
+                
+                // Configurazione offerta  
+                scadenzaOfferta: projectData.offerExpiry,
+                modalitaPagamento: projectData.paymentTerms,
+                priorita: projectData.projectPriority,
+                stato: 'Proposta Inviata',
+                
+                // Breakdown per tipo
+                tecnologia: data.riepilogoPerTipo['Tecnologia']?.venditaTotale || 0,
+                servizio: data.riepilogoPerTipo['Servizio']?.venditaTotale || 0,
+                manutenzione: data.riepilogoPerTipo['Manutenzione']?.venditaTotale || 0,
+                licenze: data.riepilogoPerTipo['Sottoscrizione Licenza']?.venditaTotale || 0,
+                altro: data.riepilogoPerTipo['Altro']?.venditaTotale || 0,
+                
+                // Statistiche
+                articoliTotali: data.articoli.length,
+                sezioniCoperte: Object.keys(data.riepilogoPerSezione).length,
+                
+                // Note e contatti
+                noteCommerciali: projectData.commercialNotes,
+                contattiCliente: projectData.clientContacts,
+                
+                // Dettaglio sezioni principali (top 5)
+                sezioniPrincipali: Object.entries(data.riepilogoPerSezione)
+                    .sort((a, b) => b[1].venditaTotale - a[1].venditaTotale)
+                    .slice(0, 5)
+                    .map(([nome, totali]) => ({
+                        nome: nome,
+                        valore: totali.venditaTotale,
+                        articoli: totali.articoli
+                    }))
+            };
+
+            return JSON.stringify(crmData, null, 2);
+        }
+
+        function displayGeneratedFiles() {
+            const filesList = document.getElementById('filesList');
+            const filesPreview = document.getElementById('filesPreview');
+            
+            // Files list
+            let filesHTML = '';
+            generatedFilesData.forEach((file, index) => {
+                const iconPath = getIconPath(file.icon);
+                filesHTML += `
+                    <div class="border border-${file.color}-200 rounded-lg p-4 bg-${file.color}-50">
+                        <div class="flex items-center mb-3">
+                            ${iconPath}
+                            <span class="font-medium text-${file.color}-800 ml-2">${getFileTypeLabel(file.type)}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">${file.name}</p>
+                        <div class="flex gap-2">
+                            <button onclick="downloadFile(${index})" class="flex-1 px-3 py-2 bg-${file.color}-600 text-white text-xs rounded hover:bg-${file.color}-700">
+                                Download
+                            </button>
+                            <button onclick="previewFile(${index})" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
+                                Anteprima
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            filesList.innerHTML = filesHTML;
+        }
+
+        function getIconPath(iconType) {
+            const icons = {
+                'document': `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`,
+                'document-text': `<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`,
+                'table': `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h12a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg>`
+            };
+            return icons[iconType] || icons['document'];
+        }
+
+        function getFileTypeLabel(type) {
+            const labels = {
+                'offer': 'Offerta Commerciale',
+                'summary': 'Sintesi Progetto', 
+                'crm': 'Dati CRM'
+            };
+            return labels[type] || type;
+        }
+
+        function downloadFile(index) {
+            const file = generatedFilesData[index];
+            
+            let mimeType, dataUrl;
+            
+            if (file.type === 'crm') {
+                // JSON to Excel conversion
+                const ws = XLSX.utils.json_to_sheet([JSON.parse(file.content)]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "CRM_Data");
+                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                dataUrl = URL.createObjectURL(blob);
+            } else {
+                // HTML content
+                const blob = new Blob([file.content], { type: 'text/html' });
+                dataUrl = URL.createObjectURL(blob);
+            }
+            
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = file.name;
+            a.click();
+            URL.revokeObjectURL(dataUrl);
+        }
+
+        function previewFile(index) {
+            const file = generatedFilesData[index];
+            const previewContainer = document.getElementById('filesPreview');
+            
+            let previewHTML = `
+                <div class="bg-white border rounded-lg p-6">
+                    <h4 class="font-medium text-gray-800 mb-4">Anteprima: ${file.name}</h4>
+                    <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto">
+            `;
+            
+            if (file.type === 'crm') {
+                const data = JSON.parse(file.content);
+                previewHTML += '<pre class="text-sm">' + JSON.stringify(data, null, 2) + '</pre>';
+            } else {
+                previewHTML += file.content.substring(0, 2000) + (file.content.length > 2000 ? '...' : '');
+            }
+            
+            previewHTML += `
+                    </div>
+                </div>
+            `;
+            
+            previewContainer.innerHTML = previewHTML;
+        }
+
+        function downloadAllFiles() {
+            generatedFilesData.forEach((file, index) => {
+                setTimeout(() => downloadFile(index), index * 1000); // Stagger downloads
+            });
+        }
+
+        function resetFileGenerator() {
+            // Reset all form fields
+            document.getElementById('fileGenClientName').value = '';
+            document.getElementById('projectCode').value = '';
+            document.getElementById('salesManager').value = '';
+            document.getElementById('commercialNotes').value = '';
+            document.getElementById('clientContacts').value = '';
+            document.getElementById('offerExpiry').value = '';
+            document.getElementById('paymentTerms').value = '';
+            document.getElementById('projectPriority').value = 'standard';
+            
+            // Reset checkboxes
+            document.getElementById('generateOffer').checked = true;
+            document.getElementById('generateSummary').checked = true;
+            document.getElementById('generateCRM').checked = true;
+            
+            // Reset file state
+            removeAnalysisFile();
+            generatedFilesData = [];
+            
+            // Show form, hide results
+            document.getElementById('fileGeneratorForm').classList.remove('hidden');
+            document.getElementById('generatedFiles').classList.add('hidden');
+        }
+
+        // Call Gemini API
+        async function callGeminiAPI(prompt) {
+            const modelName = "gemini-2.5-pro";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
+
+            const requestBody = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody),
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Error (${response.status}): ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                let rawText = result.candidates[0].content.parts[0].text;
+                return rawText.replace(/^\s*```(html)?\n?/, '').replace(/\n?```\s*$/, '');
+            } else {
+                throw new Error("Risposta AI non nel formato atteso.");
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default view
+            showIntro();
+            
+            // Add click handler for home button
+            document.getElementById('homeBtn').addEventListener('click', showIntro);
+            
+            // Set default dates
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 30);
+            document.getElementById('offerExpiry').value = tomorrow.toISOString().split('T')[0];
+            
+            // Disable generate button initially
+            document.getElementById('fileGenerateBtn').disabled = true;
+        });
+    </script>
+</body>
+</html>
