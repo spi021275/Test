@@ -557,16 +557,18 @@
                 }).join(' | ');
                 extracted.debug.push(`Riga ${i + 1}: ${rigaCompleta}`);
                 
-                // Controlla se ha una descrizione (colonna G)
+                // Controlla se ha un valore nella colonna J (Costo Unitario)
+                const costoUnitario = row[9]; // Colonna J
                 const descrizione = row[6]; // Colonna G
-                if (descrizione && descrizione.toString().trim() !== '') {
+                
+                if (costoUnitario && costoUnitario !== '' && costoUnitario !== 0) {
                     righeConDescrizione++;
                     const quantita = row[7] || '0';
                     const venditaUnitario = row[16] || '0';
                     const venditaTotale = row[17] || '0';
                     const colonnaU = row[20] || 'vuoto';
                     
-                    extracted.debug.push(`   → CON DESCRIZIONE: "${descrizione}" | Qty:${quantita} | Vendita:€${venditaTotale} | U:${colonnaU}`);
+                    extracted.debug.push(`   → CON COSTO (J): €${costoUnitario} | Descr:"${descrizione}" | Qty:${quantita} | Vendita Tot:€${venditaTotale} | U:${colonnaU}`);
                 }
                 
                 extracted.debug.push(`---`);
@@ -574,7 +576,7 @@
             
             extracted.debug.push(`=== RIEPILOGO SCANSIONE ===`);
             extracted.debug.push(`Righe analizzate dalla 3 in poi: ${righeAnalizzate}`);
-            extracted.debug.push(`Righe con descrizione trovate: ${righeConDescrizione}`);
+            extracted.debug.push(`Righe con Costo Unitario (J) trovate: ${righeConDescrizione}`);
 
             // Definizione colonne (indici da 0)
             const colonne = {
@@ -602,21 +604,23 @@
                 colonnaV: 21          // V - Colonna V
             };
 
-            // Leggi TUTTE le righe dalla riga 3 (indice 2) in poi - SENZA FILTRI RESTRITTIVI
+            // Leggi TUTTE le righe dalla riga 3 che hanno un valore nella colonna J (Costo Unitario)
             for (let i = 2; i < analisiSheet.length; i++) {
                 const row = analisiSheet[i];
                 
                 // Salta solo righe completamente vuote
                 if (!row || row.length === 0) continue;
                 
-                // Prendi QUALSIASI riga che abbia almeno qualcosa nella colonna G (descrizione)
-                const descrizione = row[colonne.descrizioneArticolo];
-                if (!descrizione || descrizione.toString().trim() === '') continue;
+                // CRITERIO PRINCIPALE: deve avere un valore nella colonna J (Costo Unitario)
+                const costoUnitario = row[colonne.costoUnitario];
+                if (!costoUnitario || costoUnitario === '' || (typeof costoUnitario === 'number' && costoUnitario === 0)) {
+                    continue;
+                }
                 
-                // NON filtrare per totali - li includiamo tutti e li gestiamo dopo
-                const descrizioneStr = descrizione.toString().trim();
+                // Prendi anche la descrizione per completezza
+                const descrizione = row[colonne.descrizioneArticolo] || `Riga ${i + 1}`;
                 
-                // Estrai TUTTI gli articoli - anche quelli con quantità 0 o dati mancanti
+                // Estrai TUTTO - senza filtri per totali o subtotali
                 const quantita = parseFloat(row[colonne.quantita]) || 0;
                 
                 const articolo = {
@@ -627,10 +631,10 @@
                     tipoArticolo: row[colonne.tipoArticolo] || '',
                     produttore: row[colonne.produttore] || '',
                     codiceArticolo: row[colonne.codiceArticolo] || '',
-                    descrizioneArticolo: descrizioneStr,
+                    descrizioneArticolo: descrizione.toString().trim(),
                     quantita: quantita,
                     listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
-                    costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
+                    costoUnitario: parseFloat(costoUnitario) || 0,
                     scontoBase: parseFloat(row[colonne.scontoBase]) || 0,
                     scontoAgg1: parseFloat(row[colonne.scontoAgg1]) || 0,
                     scontoAgg2: parseFloat(row[colonne.scontoAgg2]) || 0,
@@ -641,22 +645,26 @@
                     venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
                     markup: parseFloat(row[colonne.markup]) || 0,
                     colonnaT: row[colonne.colonnaT] || '',
-                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0, // Tratta U come numero per la somma
+                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0,
                     colonnaV: row[colonne.colonnaV] || ''
                 };
 
                 extracted.articoli.push(articolo);
             }
 
-            // Calcola totali - INCLUDENDO le somme per colonne R e U
+            // Calcola TUTTI i totali e riepiloghi dettagliati
             extracted.totaleOfferta = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
             extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
             extracted.marginePercentuale = extracted.totaleOfferta > 0 ? 
                 (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
 
-            // NUOVE SOMME per colonne R e U
+            // SOMME per tutte le colonne principali
+            extracted.totaleColonnaI = extracted.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0);
+            extracted.totaleColonnaJ = extracted.articoli.reduce((sum, art) => sum + art.costoUnitario, 0);
             extracted.totaleColonnaR = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
             extracted.totaleColonnaU = extracted.articoli.reduce((sum, art) => sum + (art.colonnaU || 0), 0);
+            extracted.totaleCostoTotale = extracted.articoli.reduce((sum, art) => sum + art.costoTotale, 0);
+            extracted.totaleQuantita = extracted.articoli.reduce((sum, art) => sum + art.quantita, 0);
 
             // Riepilogo per tipo articolo
             extracted.articoli.forEach(art => {
@@ -724,13 +732,16 @@
                 html += `</div>`;
             }
             
-            // Dati principali estratti
+            // Dati principali estratti con TUTTI i riepiloghi
             html += `<div class="bg-blue-50 p-3 rounded border">`;
-            html += `<strong>Analisi Economica DSA - Dati Estratti:</strong><br>`;
-            html += `Totale Offerta (R): <strong>€${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `<strong>Analisi Economica DSA - Riepiloghi Totali:</strong><br>`;
+            html += `Articoli con Costo (J): <strong>${data.articoli.length}</strong><br>`;
+            html += `Totale Quantità: <strong>${data.totaleQuantita.toLocaleString('it-IT')}</strong><br>`;
+            html += `Totale Listino (I): <strong>€${data.totaleColonnaI.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Costi (J): <strong>€${data.totaleColonnaJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Vendita (R): <strong>€${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
             html += `Totale Colonna U: <strong>${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
-            html += `Margine: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong><br>`;
-            html += `Articoli Estratti: <strong>${data.articoli.length}</strong><br>`;
+            html += `Margine Totale: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong><br>`;
             html += `Fogli nel File: ${data.sheets.join(', ')}`;
             html += `</div>`;
             
@@ -1067,8 +1078,8 @@
             `).join('')}
             <tr class="total-row">
                 <td><strong>TOTALI</strong></td>
-                <td class="amount"><strong>€ ${data.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td class="amount"><strong>€ ${data.articoli.reduce((sum, art) => sum + art.costoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.totaleColonnaI.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.totaleColonnaJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                 <td class="amount"><strong>€ ${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                 <td class="amount"><strong>${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
             </tr>
