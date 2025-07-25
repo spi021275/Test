@@ -175,9 +175,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                 </svg>
                                 <span class="text-sm text-green-700 font-medium">Carica Analisi Economica DSA</span>
-                                <span class="text-xs text-green-600 mt-1">.xlsx, .xls (max 10MB)</span>
+                                <span class="text-xs text-green-600 mt-1">.xlsx, .xlsm, .xls (max 10MB)</span>
                             </div>
-                            <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xls" onchange="handleAnalysisUpload(event)">
+                            <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xlsm,.xls" onchange="handleAnalysisUpload(event)">
                             
                             <!-- Uploaded File Display -->
                             <div id="uploadedAnalysisFile" class="mt-4 hidden">
@@ -376,8 +376,10 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            if (!file.name.toLowerCase().endsWith('.xlsx') && !file.name.toLowerCase().endsWith('.xls')) {
-                alert('Seleziona solo file Excel (.xlsx o .xls)');
+            if (!file.name.toLowerCase().endsWith('.xlsx') && 
+                !file.name.toLowerCase().endsWith('.xlsm') && 
+                !file.name.toLowerCase().endsWith('.xls')) {
+                alert('Seleziona solo file Excel (.xlsx, .xlsm o .xls)');
                 return;
             }
 
@@ -426,17 +428,28 @@
                 reader.onload = function(e) {
                     try {
                         const data = e.target.result;
-                        const workbook = XLSX.read(data, { type: 'binary' });
+                        // Supporto per .xlsm (Excel con macro) e altri formati
+                        const workbook = XLSX.read(data, { 
+                            type: 'binary',
+                            cellFormulas: false, // Ignora le formule per sicurezza
+                            cellStyles: false,   // Non serve per l'estrazione dati
+                            sheetStubs: true     // Include celle vuote
+                        });
                         
                         const result = {};
                         workbook.SheetNames.forEach(sheetName => {
                             const sheet = workbook.Sheets[sheetName];
-                            result[sheetName] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                            // Converti in JSON con header numerico per maggiore flessibilità
+                            result[sheetName] = XLSX.utils.sheet_to_json(sheet, { 
+                                header: 1,
+                                defval: '',  // Valore default per celle vuote
+                                raw: false   // Converti tutto in stringhe per parsing uniforme
+                            });
                         });
                         
                         resolve(result);
                     } catch (error) {
-                        reject(error);
+                        reject(new Error(`Errore nel parsing del file Excel: ${error.message}`));
                     }
                 };
                 
