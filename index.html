@@ -467,98 +467,357 @@
                 progetto: '',
                 totaleOfferta: 0,
                 margine: 0,
+                marginePct: 0,
                 timeline: '',
                 componenti: [],
                 servizi: [],
                 riepilogo: {},
-                sheets: Object.keys(excelData)
+                sheets: Object.keys(excelData),
+                rawData: null,
+                dataFound: false
             };
 
-            // Analizza ogni sheet per estrarre i dati
-            Object.keys(excelData).forEach(sheetName => {
-                const sheet = excelData[sheetName];
-                
-                // Cerca dati chiave nelle celle
-                sheet.forEach((row, rowIndex) => {
-                    if (!row || row.length === 0) return;
-                    
-                    row.forEach((cell, colIndex) => {
-                        if (!cell) return;
-                        
-                        const cellStr = cell.toString().toLowerCase();
-                        
-                        // Estrai nome cliente
-                        if (cellStr.includes('cliente') || cellStr.includes('customer')) {
-                            const nextCell = row[colIndex + 1];
-                            if (nextCell && !extracted.cliente) {
-                                extracted.cliente = nextCell.toString();
-                            }
-                        }
-                        
-                        // Estrai totale
-                        if (cellStr.includes('totale') || cellStr.includes('total')) {
-                            const nextCell = row[colIndex + 1];
-                            if (nextCell && typeof nextCell === 'number') {
-                                extracted.totaleOfferta = nextCell;
-                            }
-                        }
-                        
-                        // Estrai margine
-                        if (cellStr.includes('margine') || cellStr.includes('margin')) {
-                            const nextCell = row[colIndex + 1];
-                            if (nextCell && typeof nextCell === 'number') {
-                                extracted.margine = nextCell;
-                            }
-                        }
-                    });
-                });
-                
-                // Estrai componenti (righe con descrizione prodotto)
-                if (sheetName.toLowerCase().includes('component') || sheetName.toLowerCase().includes('prodot')) {
-                    sheet.forEach((row, index) => {
-                        if (index > 0 && row.length >= 3) { // Skip header
-                            if (row[0] && row[1] && row[2]) {
-                                extracted.componenti.push({
-                                    codice: row[0],
-                                    descrizione: row[1],
-                                    quantita: row[2],
-                                    prezzo: row[3] || 0
-                                });
-                            }
-                        }
-                    });
+            // Cerca specificamente il foglio "Analisi Economica"
+            const targetSheetNames = [
+                'Analisi Economica',
+                'analisi economica', 
+                'ANALISI ECONOMICA',
+                'Analisi_Economica',
+                'AnalisiEconomica'
+            ];
+
+            let targetSheet = null;
+            let sheetName = '';
+
+            // Trova il foglio target
+            for (const name of targetSheetNames) {
+                if (excelData[name]) {
+                    targetSheet = excelData[name];
+                    sheetName = name;
+                    extracted.dataFound = true;
+                    break;
                 }
+            }
+
+            if (!targetSheet) {
+                // Se non trova il nome esatto, cerca fogli che contengono "analisi" ed "economica"
+                for (const name of Object.keys(excelData)) {
+                    const lowerName = name.toLowerCase();
+                    if (lowerName.includes('analisi') && lowerName.includes('economica')) {
+                        targetSheet = excelData[name];
+                        sheetName = name;
+                        extracted.dataFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!targetSheet) {
+                console.warn('Foglio "Analisi Economica" non trovato. Fogli disponibili:', Object.keys(excelData));
+                return extracted;
+            }
+
+            console.log(`Analizzando foglio: "${sheetName}"`);
+            extracted.rawData = targetSheet;
+
+            // Analisi approfondita del foglio "Analisi Economica"
+            targetSheet.forEach((row, rowIndex) => {
+                if (!row || row.length === 0) return;
+                
+                row.forEach((cell, colIndex) => {
+                    if (!cell) return;
+                    
+                    const cellStr = cell.toString().toLowerCase().trim();
+                    const nextCell = row[colIndex + 1];
+                    const cellBelow = targetSheet[rowIndex + 1] ? targetSheet[rowIndex + 1][colIndex] : null;
+                    const cellBelowNext = targetSheet[rowIndex + 1] ? targetSheet[rowIndex + 1][colIndex + 1] : null;
+
+                    // === ESTRAZIONE DATI CLIENTE ===
+                    if ((cellStr.includes('cliente') || cellStr.includes('customer') || cellStr.includes('client')) && 
+                        nextCell && !extracted.cliente) {
+                        extracted.cliente = nextCell.toString().trim();
+                    }
+
+                    // === ESTRAZIONE NOME PROGETTO ===
+                    if ((cellStr.includes('progetto') || cellStr.includes('project') || cellStr.includes('commessa')) && 
+                        nextCell && !extracted.progetto) {
+                        extracted.progetto = nextCell.toString().trim();
+                    }
+
+                    // === ESTRAZIONE TOTALI ===
+                    if (cellStr.includes('totale') || cellStr.includes('total') || cellStr.includes('subtotal')) {
+                        // Cerca valore numerico nelle celle adiacenti
+                        [nextCell, cellBelow, cellBelowNext].forEach(adjacentCell => {
+                            if (adjacentCell && !isNaN(parseFloat(adjacentCell))) {
+                                const value = parseFloat(adjacentCell);
+                                if (value > extracted.totaleOfferta) {
+                                    extracted.totaleOfferta = value;
+                                }
+                            }
+                        });
+                    }
+
+                    // === ESTRAZIONE MARGINE ===
+                    if (cellStr.includes('margine') || cellStr.includes('margin') || cellStr.includes('markup')) {
+                        [nextCell, cellBelow, cellBelowNext].forEach(adjacentCell => {
+                            if (adjacentCell && !isNaN(parseFloat(adjacentCell))) {
+                                const value = parseFloat(adjacentCell);
+                                if (cellStr.includes('%') || value < 1) {
+                                    extracted.marginePct = value;
+                                } else {
+                                    extracted.margine = value;
+                                }
+                            }
+                        });
+                    }
+
+                    // === ESTRAZIONE TIMELINE ===
+                    if ((cellStr.includes('timeline') || cellStr.includes('delivery') || cellStr.includes('consegna') || 
+                         cellStr.includes('scadenza') || cellStr.includes('durata')) && nextCell && !extracted.timeline) {
+                        extracted.timeline = nextCell.toString().trim();
+                    }
+
+                    // === IDENTIFICAZIONE TABELLE COMPONENTI ===
+                    if (cellStr.includes('descrizione') || cellStr.includes('prodotto') || cellStr.includes('item') || 
+                        cellStr.includes('articolo') || cellStr.includes('component')) {
+                        
+                        // Cerca tabella prodotti a partire da questa riga
+                        extracted.componenti = extracted.componenti.concat(
+                            extractComponentsTable(targetSheet, rowIndex, colIndex)
+                        );
+                    }
+
+                    // === IDENTIFICAZIONE SERVIZI ===
+                    if (cellStr.includes('servizi') || cellStr.includes('service') || cellStr.includes('installazione') || 
+                        cellStr.includes('configurazione') || cellStr.includes('supporto')) {
+                        
+                        extracted.servizi = extracted.servizi.concat(
+                            extractServicesTable(targetSheet, rowIndex, colIndex)
+                        );
+                    }
+                });
             });
 
+            // === PULIZIA E VALIDAZIONE DATI ===
+            extracted.componenti = removeDuplicateComponents(extracted.componenti);
+            extracted.servizi = removeDuplicateServices(extracted.servizi);
+
+            // Calcola riepilogo
+            extracted.riepilogo = {
+                numeroComponenti: extracted.componenti.length,
+                numeroServizi: extracted.servizi.length,
+                valoreComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.prezzoTotale || 0), 0),
+                valoreServizi: extracted.servizi.reduce((sum, serv) => sum + (serv.prezzoTotale || 0), 0)
+            };
+
+            console.log('Dati estratti:', extracted);
             return extracted;
+        }
+
+        function extractComponentsTable(sheet, startRow, startCol) {
+            const components = [];
+            let headerRow = null;
+            
+            // Trova la riga header (cerca colonne tipiche)
+            for (let row = startRow; row < Math.min(startRow + 3, sheet.length); row++) {
+                const rowData = sheet[row];
+                if (!rowData) continue;
+                
+                const headers = rowData.map(cell => (cell || '').toString().toLowerCase());
+                if (headers.some(h => h.includes('qty') || h.includes('quantità') || h.includes('prezzo') || h.includes('price'))) {
+                    headerRow = row;
+                    break;
+                }
+            }
+            
+            if (!headerRow) headerRow = startRow;
+            
+            // Estrai componenti dalle righe successive
+            for (let row = headerRow + 1; row < Math.min(headerRow + 50, sheet.length); row++) {
+                const rowData = sheet[row];
+                if (!rowData || rowData.length < 2) continue;
+                
+                // Stop se riga vuota o totali
+                const firstCell = (rowData[0] || '').toString().toLowerCase();
+                if (!firstCell || firstCell.includes('totale') || firstCell.includes('subtotal')) {
+                    break;
+                }
+                
+                const component = {
+                    riga: row + 1,
+                    codice: rowData[0] ? rowData[0].toString().trim() : '',
+                    descrizione: rowData[1] ? rowData[1].toString().trim() : '',
+                    quantita: 1,
+                    prezzoUnitario: 0,
+                    prezzoTotale: 0
+                };
+                
+                // Cerca quantità e prezzi nelle colonne successive
+                for (let col = 2; col < rowData.length; col++) {
+                    const cellValue = rowData[col];
+                    if (cellValue && !isNaN(parseFloat(cellValue))) {
+                        const numValue = parseFloat(cellValue);
+                        
+                        if (numValue < 100 && component.quantita === 1) {
+                            component.quantita = numValue;
+                        } else if (numValue > 0) {
+                            if (component.prezzoUnitario === 0) {
+                                component.prezzoUnitario = numValue;
+                            } else {
+                                component.prezzoTotale = numValue;
+                            }
+                        }
+                    }
+                }
+                
+                // Calcola prezzo totale se mancante
+                if (component.prezzoTotale === 0 && component.prezzoUnitario > 0) {
+                    component.prezzoTotale = component.prezzoUnitario * component.quantita;
+                }
+                
+                if (component.descrizione) {
+                    components.push(component);
+                }
+            }
+            
+            return components;
+        }
+
+        function extractServicesTable(sheet, startRow, startCol) {
+            const services = [];
+            
+            // Simile a extractComponentsTable ma per servizi
+            for (let row = startRow + 1; row < Math.min(startRow + 20, sheet.length); row++) {
+                const rowData = sheet[row];
+                if (!rowData || rowData.length < 2) continue;
+                
+                const firstCell = (rowData[0] || '').toString().toLowerCase();
+                if (!firstCell || firstCell.includes('totale')) break;
+                
+                const service = {
+                    riga: row + 1,
+                    descrizione: rowData[0] ? rowData[0].toString().trim() : '',
+                    tipo: rowData[1] ? rowData[1].toString().trim() : '',
+                    durata: '',
+                    prezzo: 0
+                };
+                
+                // Cerca prezzi
+                for (let col = 1; col < rowData.length; col++) {
+                    const cellValue = rowData[col];
+                    if (cellValue && !isNaN(parseFloat(cellValue))) {
+                        service.prezzoTotale = parseFloat(cellValue);
+                        break;
+                    }
+                }
+                
+                if (service.descrizione) {
+                    services.push(service);
+                }
+            }
+            
+            return services;
+        }
+
+        function removeDuplicateComponents(components) {
+            const seen = new Set();
+            return components.filter(comp => {
+                const key = comp.descrizione + '_' + comp.codice;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function removeDuplicateServices(services) {
+            const seen = new Set();
+            return services.filter(serv => {
+                const key = serv.descrizione;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
         }
 
         function displayExcelPreview(data) {
             const previewContainer = document.getElementById('excelPreviewContent');
             
-            let html = '<div class="space-y-3">';
+            let html = '<div class="space-y-4">';
             
-            // Dati principali
-            html += `<div class="bg-blue-50 p-3 rounded border">`;
-            html += `<strong>Dati Principali Estratti:</strong><br>`;
-            html += `Cliente: ${data.cliente || 'Non trovato'}<br>`;
-            html += `Totale Offerta: €${data.totaleOfferta.toLocaleString() || '0'}<br>`;
-            html += `Margine: ${data.margine}${typeof data.margine === 'number' && data.margine < 1 ? '%' : '€'}<br>`;
-            html += `Fogli trovati: ${data.sheets.join(', ')}`;
-            html += `</div>`;
-            
-            // Componenti
-            if (data.componenti.length > 0) {
-                html += `<div class="bg-green-50 p-3 rounded border">`;
-                html += `<strong>Componenti Trovati (${data.componenti.length}):</strong><br>`;
-                data.componenti.slice(0, 3).forEach(comp => {
-                    html += `• ${comp.descrizione} (Qty: ${comp.quantita})<br>`;
-                });
-                if (data.componenti.length > 3) {
-                    html += `... e altri ${data.componenti.length - 3} componenti`;
-                }
+            // Status estrazione
+            if (!data.dataFound) {
+                html += `<div class="bg-red-50 p-3 rounded border border-red-200">`;
+                html += `<strong class="text-red-800">⚠️ Foglio "Analisi Economica" non trovato</strong><br>`;
+                html += `<span class="text-red-600">Fogli disponibili: ${data.sheets.join(', ')}</span><br>`;
+                html += `<span class="text-xs text-red-500">Verifica che il file contenga un foglio denominato "Analisi Economica"</span>`;
                 html += `</div>`;
+                html += '</div>';
+                previewContainer.innerHTML = html;
+                document.getElementById('excelDataPreview').classList.remove('hidden');
+                return;
             }
+            
+            // Dati principali estratti
+            html += `<div class="bg-blue-50 p-4 rounded border border-blue-200">`;
+            html += `<strong class="text-blue-800">📊 Dati Principali Estratti dal Foglio "Analisi Economica":</strong><br><br>`;
+            html += `<div class="grid grid-cols-2 gap-4 text-sm">`;
+            html += `<div><strong>Cliente:</strong> ${data.cliente || 'Non trovato'}</div>`;
+            html += `<div><strong>Progetto:</strong> ${data.progetto || 'Non trovato'}</div>`;
+            html += `<div><strong>Totale Offerta:</strong> €${data.totaleOfferta.toLocaleString() || '0'}</div>`;
+            html += `<div><strong>Margine:</strong> €${data.margine.toLocaleString()} (${data.marginePct}%)</div>`;
+            html += `<div><strong>Timeline:</strong> ${data.timeline || 'Non specificata'}</div>`;
+            html += `<div><strong>Fogli totali:</strong> ${data.sheets.length}</div>`;
+            html += `</div></div>`;
+            
+            // Componenti/Prodotti
+            if (data.componenti.length > 0) {
+                html += `<div class="bg-green-50 p-4 rounded border border-green-200">`;
+                html += `<strong class="text-green-800">🛠️ Componenti/Prodotti Trovati (${data.componenti.length}):</strong><br><br>`;
+                html += `<div class="text-xs space-y-2 max-h-32 overflow-y-auto">`;
+                data.componenti.slice(0, 8).forEach((comp, index) => {
+                    html += `<div class="bg-white p-2 rounded border">`;
+                    html += `<strong>${comp.descrizione}</strong><br>`;
+                    html += `Codice: ${comp.codice} | Qty: ${comp.quantita} | Prezzo: €${comp.prezzoTotale.toLocaleString()} | Riga: ${comp.riga}`;
+                    html += `</div>`;
+                });
+                if (data.componenti.length > 8) {
+                    html += `<div class="text-center text-gray-500 py-2">... e altri ${data.componenti.length - 8} componenti</div>`;
+                }
+                html += `</div></div>`;
+            }
+            
+            // Servizi
+            if (data.servizi.length > 0) {
+                html += `<div class="bg-purple-50 p-4 rounded border border-purple-200">`;
+                html += `<strong class="text-purple-800">⚙️ Servizi Trovati (${data.servizi.length}):</strong><br><br>`;
+                html += `<div class="text-xs space-y-1">`;
+                data.servizi.slice(0, 5).forEach(serv => {
+                    html += `• ${serv.descrizione} - €${serv.prezzoTotale?.toLocaleString() || '0'}<br>`;
+                });
+                if (data.servizi.length > 5) {
+                    html += `... e altri ${data.servizi.length - 5} servizi`;
+                }
+                html += `</div></div>`;
+            }
+            
+            // Riepilogo economico
+            if (data.riepilogo) {
+                html += `<div class="bg-yellow-50 p-4 rounded border border-yellow-200">`;
+                html += `<strong class="text-yellow-800">💰 Riepilogo Economico:</strong><br><br>`;
+                html += `<div class="grid grid-cols-2 gap-2 text-xs">`;
+                html += `<div>Componenti: ${data.riepilogo.numeroComponenti} (€${data.riepilogo.valoreComponenti.toLocaleString()})</div>`;
+                html += `<div>Servizi: ${data.riepilogo.numeroServizi} (€${data.riepilogo.valoreServizi.toLocaleString()})</div>`;
+                html += `<div>Totale calcolato: €${(data.riepilogo.valoreComponenti + data.riepilogo.valoreServizi).toLocaleString()}</div>`;
+                html += `<div>Margine rilevato: €${data.margine.toLocaleString()}</div>`;
+                html += `</div></div>`;
+            }
+            
+            // Info debug
+            html += `<div class="bg-gray-50 p-3 rounded border text-xs text-gray-600">`;
+            html += `<strong>ℹ️ Info Estrazione:</strong> Analizzato foglio "Analisi Economica" | `;
+            html += `${data.rawData ? data.rawData.length : 0} righe processate | `;
+            html += `Estrazione completata con successo`;
+            html += `</div>`;
             
             html += '</div>';
             
