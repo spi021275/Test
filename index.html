@@ -532,17 +532,41 @@
             // DEBUG: Mostra info sul foglio selezionato
             extracted.debug.push(`Foglio selezionato: "${sheetName}" con ${analisiSheet.length} righe`);
             
-            // DEBUG: Mostra le prime 3 righe per capire la struttura - TUTTE LE COLONNE
-            for (let i = 0; i < Math.min(3, analisiSheet.length); i++) {
-                if (analisiSheet[i] && analisiSheet[i].length > 0) {
-                    // Mostra tutte le colonne dalla A alla V (indici 0-21)
-                    const rigaCompleta = analisiSheet[i].slice(0, 22).map((cell, idx) => {
-                        const lettera = String.fromCharCode(65 + idx); // A, B, C, etc.
+            // DEBUG: Mostra TUTTE le righe dalla 3 in poi che contengono dati
+            extracted.debug.push(`=== ANALISI RIGHE DATI (dalla riga 3 in poi) ===`);
+            
+            let righeConDati = 0;
+            for (let i = 2; i < analisiSheet.length; i++) { // Inizia dalla riga 3 (indice 2)
+                const row = analisiSheet[i];
+                
+                if (!row || row.length === 0) continue;
+                
+                // Controlla se la riga ha almeno una descrizione (colonna G)
+                const descrizione = row[6]; // Colonna G
+                if (descrizione && descrizione.toString().trim() !== '') {
+                    righeConDati++;
+                    
+                    // Mostra dettaglio riga per debug (tutte le colonne A-V)
+                    const rigaCompleta = row.slice(0, 22).map((cell, idx) => {
+                        const lettera = String.fromCharCode(65 + idx);
                         return `${lettera}:${cell || 'vuoto'}`;
                     }).join(' | ');
+                    
                     extracted.debug.push(`Riga ${i + 1}: ${rigaCompleta}`);
+                    
+                    // Mostra anche i dati principali in formato leggibile
+                    const sezione = row[0] || '';
+                    const descrizioneArt = row[6] || '';
+                    const quantita = row[7] || '';
+                    const venditaUnitario = row[16] || '';
+                    const venditaTotale = row[17] || '';
+                    
+                    extracted.debug.push(`   → ${sezione} | ${descrizioneArt} | Qty:${quantita} | €${venditaUnitario} | Tot:€${venditaTotale}`);
+                    extracted.debug.push(`---`);
                 }
             }
+            
+            extracted.debug.push(`=== TOTALE RIGHE CON DATI: ${righeConDati} ===`);
 
             // Definizione colonne (indici da 0)
             const colonne = {
@@ -570,54 +594,57 @@
                 colonnaV: 21          // V - Colonna V
             };
 
-            // Leggi i dati dalla riga 3 (indice 2) in poi
+            // Leggi TUTTI i dati dalla riga 3 (indice 2) in poi
             for (let i = 2; i < analisiSheet.length; i++) {
                 const row = analisiSheet[i];
                 
-                // Controlla se la riga è vuota o è un subtotale
+                // Controlla se la riga è vuota
                 if (!row || row.length === 0) continue;
                 
-                // Salta righe di subtotali (che di solito hanno descrizioni come "Totale", "Subtotale", etc.)
+                // Verifica se c'è almeno una descrizione (colonna G) non vuota
                 const descrizione = row[colonne.descrizioneArticolo];
-                if (!descrizione || 
-                    descrizione.toString().toLowerCase().includes('totale') ||
-                    descrizione.toString().toLowerCase().includes('subtotale') ||
-                    descrizione.toString().toLowerCase().includes('sub-totale')) {
+                if (!descrizione || descrizione.toString().trim() === '') continue;
+                
+                // Salta righe di subtotali/totali (controllo più permissivo)
+                const descrizioneStr = descrizione.toString().toLowerCase();
+                if (descrizioneStr.includes('totale') || 
+                    descrizioneStr.includes('subtotale') ||
+                    descrizioneStr.includes('sub-totale') ||
+                    descrizioneStr.includes('somma') ||
+                    descrizioneStr.startsWith('tot.')) {
                     continue;
                 }
 
-                // Estrai solo righe con dati validi (almeno descrizione e quantità)
+                // Estrai TUTTI gli articoli con descrizione valida (anche con quantità 0)
                 const quantita = parseFloat(row[colonne.quantita]) || 0;
-                if (descrizione && quantita > 0) {
-                    
-                    const articolo = {
-                        riga: i + 1, // Numero riga Excel (base 1)
-                        sezione: row[colonne.sezione] || '',
-                        areaInteresse: row[colonne.areaInteresse] || '',
-                        sottocategoria: row[colonne.sottocategoria] || '',
-                        tipoArticolo: row[colonne.tipoArticolo] || '',
-                        produttore: row[colonne.produttore] || '',
-                        codiceArticolo: row[colonne.codiceArticolo] || '',
-                        descrizioneArticolo: descrizione.toString(),
-                        quantita: quantita,
-                        listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
-                        costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
-                        scontoBase: parseFloat(row[colonne.scontoBase]) || 0,
-                        scontoAgg1: parseFloat(row[colonne.scontoAgg1]) || 0,
-                        scontoAgg2: parseFloat(row[colonne.scontoAgg2]) || 0,
-                        costoUnitarioFinale: parseFloat(row[colonne.costoUnitarioFinale]) || 0,
-                        costoTotale: parseFloat(row[colonne.costoTotale]) || 0,
-                        margine: parseFloat(row[colonne.margine]) || 0,
-                        venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
-                        venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
-                        markup: parseFloat(row[colonne.markup]) || 0,
-                        colonnaT: row[colonne.colonnaT] || '',
-                        colonnaU: row[colonne.colonnaU] || '',
-                        colonnaV: row[colonne.colonnaV] || ''
-                    };
+                
+                const articolo = {
+                    riga: i + 1, // Numero riga Excel (base 1)
+                    sezione: row[colonne.sezione] || '',
+                    areaInteresse: row[colonne.areaInteresse] || '',
+                    sottocategoria: row[colonne.sottocategoria] || '',
+                    tipoArticolo: row[colonne.tipoArticolo] || '',
+                    produttore: row[colonne.produttore] || '',
+                    codiceArticolo: row[colonne.codiceArticolo] || '',
+                    descrizioneArticolo: descrizione.toString().trim(),
+                    quantita: quantita,
+                    listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
+                    costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
+                    scontoBase: parseFloat(row[colonne.scontoBase]) || 0,
+                    scontoAgg1: parseFloat(row[colonne.scontoAgg1]) || 0,
+                    scontoAgg2: parseFloat(row[colonne.scontoAgg2]) || 0,
+                    costoUnitarioFinale: parseFloat(row[colonne.costoUnitarioFinale]) || 0,
+                    costoTotale: parseFloat(row[colonne.costoTotale]) || 0,
+                    margine: parseFloat(row[colonne.margine]) || 0,
+                    venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
+                    venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
+                    markup: parseFloat(row[colonne.markup]) || 0,
+                    colonnaT: row[colonne.colonnaT] || '',
+                    colonnaU: row[colonne.colonnaU] || '',
+                    colonnaV: row[colonne.colonnaV] || ''
+                };
 
-                    extracted.articoli.push(articolo);
-                }
+                extracted.articoli.push(articolo);
             }
 
             // Calcola totali e riepiloghi
