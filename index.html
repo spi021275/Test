@@ -532,41 +532,49 @@
             // DEBUG: Mostra info sul foglio selezionato
             extracted.debug.push(`Foglio selezionato: "${sheetName}" con ${analisiSheet.length} righe`);
             
-            // DEBUG: Mostra TUTTE le righe dalla 3 in poi che contengono dati
-            extracted.debug.push(`=== ANALISI RIGHE DATI (dalla riga 3 in poi) ===`);
+            // DEBUG: Mostra TUTTE le righe dalla 3 in poi (anche quelle apparentemente vuote)
+            extracted.debug.push(`=== ANALISI COMPLETA FOGLIO (dalla riga 3) ===`);
+            extracted.debug.push(`Foglio "${sheetName}" ha ${analisiSheet.length} righe totali`);
             
-            let righeConDati = 0;
-            for (let i = 2; i < analisiSheet.length; i++) { // Inizia dalla riga 3 (indice 2)
+            let righeAnalizzate = 0;
+            let righeConDescrizione = 0;
+            
+            // Scorri TUTTE le righe dalla 3 in poi
+            for (let i = 2; i < analisiSheet.length; i++) { // Riga 3 = indice 2
                 const row = analisiSheet[i];
+                righeAnalizzate++;
                 
-                if (!row || row.length === 0) continue;
+                // Mostra SEMPRE la riga nel debug, anche se vuota
+                if (!row || row.length === 0) {
+                    extracted.debug.push(`Riga ${i + 1}: RIGA COMPLETAMENTE VUOTA`);
+                    continue;
+                }
                 
-                // Controlla se la riga ha almeno una descrizione (colonna G)
+                // Mostra tutte le colonne A-V
+                const rigaCompleta = row.slice(0, 22).map((cell, idx) => {
+                    const lettera = String.fromCharCode(65 + idx);
+                    return `${lettera}:${cell || 'vuoto'}`;
+                }).join(' | ');
+                extracted.debug.push(`Riga ${i + 1}: ${rigaCompleta}`);
+                
+                // Controlla se ha una descrizione (colonna G)
                 const descrizione = row[6]; // Colonna G
                 if (descrizione && descrizione.toString().trim() !== '') {
-                    righeConDati++;
+                    righeConDescrizione++;
+                    const quantita = row[7] || '0';
+                    const venditaUnitario = row[16] || '0';
+                    const venditaTotale = row[17] || '0';
+                    const colonnaU = row[20] || 'vuoto';
                     
-                    // Mostra dettaglio riga per debug (tutte le colonne A-V)
-                    const rigaCompleta = row.slice(0, 22).map((cell, idx) => {
-                        const lettera = String.fromCharCode(65 + idx);
-                        return `${lettera}:${cell || 'vuoto'}`;
-                    }).join(' | ');
-                    
-                    extracted.debug.push(`Riga ${i + 1}: ${rigaCompleta}`);
-                    
-                    // Mostra anche i dati principali in formato leggibile
-                    const sezione = row[0] || '';
-                    const descrizioneArt = row[6] || '';
-                    const quantita = row[7] || '';
-                    const venditaUnitario = row[16] || '';
-                    const venditaTotale = row[17] || '';
-                    
-                    extracted.debug.push(`   → ${sezione} | ${descrizioneArt} | Qty:${quantita} | €${venditaUnitario} | Tot:€${venditaTotale}`);
-                    extracted.debug.push(`---`);
+                    extracted.debug.push(`   → CON DESCRIZIONE: "${descrizione}" | Qty:${quantita} | Vendita:€${venditaTotale} | U:${colonnaU}`);
                 }
+                
+                extracted.debug.push(`---`);
             }
             
-            extracted.debug.push(`=== TOTALE RIGHE CON DATI: ${righeConDati} ===`);
+            extracted.debug.push(`=== RIEPILOGO SCANSIONE ===`);
+            extracted.debug.push(`Righe analizzate dalla 3 in poi: ${righeAnalizzate}`);
+            extracted.debug.push(`Righe con descrizione trovate: ${righeConDescrizione}`);
 
             // Definizione colonne (indici da 0)
             const colonne = {
@@ -594,28 +602,21 @@
                 colonnaV: 21          // V - Colonna V
             };
 
-            // Leggi TUTTI i dati dalla riga 3 (indice 2) in poi
+            // Leggi TUTTE le righe dalla riga 3 (indice 2) in poi - SENZA FILTRI RESTRITTIVI
             for (let i = 2; i < analisiSheet.length; i++) {
                 const row = analisiSheet[i];
                 
-                // Controlla se la riga è vuota
+                // Salta solo righe completamente vuote
                 if (!row || row.length === 0) continue;
                 
-                // Verifica se c'è almeno una descrizione (colonna G) non vuota
+                // Prendi QUALSIASI riga che abbia almeno qualcosa nella colonna G (descrizione)
                 const descrizione = row[colonne.descrizioneArticolo];
                 if (!descrizione || descrizione.toString().trim() === '') continue;
                 
-                // Salta righe di subtotali/totali (controllo più permissivo)
-                const descrizioneStr = descrizione.toString().toLowerCase();
-                if (descrizioneStr.includes('totale') || 
-                    descrizioneStr.includes('subtotale') ||
-                    descrizioneStr.includes('sub-totale') ||
-                    descrizioneStr.includes('somma') ||
-                    descrizioneStr.startsWith('tot.')) {
-                    continue;
-                }
-
-                // Estrai TUTTI gli articoli con descrizione valida (anche con quantità 0)
+                // NON filtrare per totali - li includiamo tutti e li gestiamo dopo
+                const descrizioneStr = descrizione.toString().trim();
+                
+                // Estrai TUTTI gli articoli - anche quelli con quantità 0 o dati mancanti
                 const quantita = parseFloat(row[colonne.quantita]) || 0;
                 
                 const articolo = {
@@ -626,7 +627,7 @@
                     tipoArticolo: row[colonne.tipoArticolo] || '',
                     produttore: row[colonne.produttore] || '',
                     codiceArticolo: row[colonne.codiceArticolo] || '',
-                    descrizioneArticolo: descrizione.toString().trim(),
+                    descrizioneArticolo: descrizioneStr,
                     quantita: quantita,
                     listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
                     costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
@@ -640,18 +641,22 @@
                     venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
                     markup: parseFloat(row[colonne.markup]) || 0,
                     colonnaT: row[colonne.colonnaT] || '',
-                    colonnaU: row[colonne.colonnaU] || '',
+                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0, // Tratta U come numero per la somma
                     colonnaV: row[colonne.colonnaV] || ''
                 };
 
                 extracted.articoli.push(articolo);
             }
 
-            // Calcola totali e riepiloghi
+            // Calcola totali - INCLUDENDO le somme per colonne R e U
             extracted.totaleOfferta = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
             extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
             extracted.marginePercentuale = extracted.totaleOfferta > 0 ? 
                 (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
+
+            // NUOVE SOMME per colonne R e U
+            extracted.totaleColonnaR = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
+            extracted.totaleColonnaU = extracted.articoli.reduce((sum, art) => sum + (art.colonnaU || 0), 0);
 
             // Riepilogo per tipo articolo
             extracted.articoli.forEach(art => {
@@ -722,7 +727,8 @@
             // Dati principali estratti
             html += `<div class="bg-blue-50 p-3 rounded border">`;
             html += `<strong>Analisi Economica DSA - Dati Estratti:</strong><br>`;
-            html += `Totale Offerta: <strong>€${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Offerta (R): <strong>€${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Colonna U: <strong>${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
             html += `Margine: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong><br>`;
             html += `Articoli Estratti: <strong>${data.articoli.length}</strong><br>`;
             html += `Fogli nel File: ${data.sheets.join(', ')}`;
@@ -950,7 +956,7 @@
             </tr>
         </thead>
         <tbody>
-            ${data.articoli.slice(0, 20).map(art => `
+            ${data.articoli.map(art => `
             <tr>
                 <td>${art.quantita}</td>
                 <td>${art.descrizioneArticolo}</td>
@@ -960,7 +966,7 @@
             `).join('')}
             <tr class="total-row">
                 <td colspan="3" style="text-align: right;"><strong>TOTALE COMPLESSIVO:</strong></td>
-                <td class="amount"><strong>€ ${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>€ ${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
             </tr>
         </tbody>
     </table>
@@ -1050,9 +1056,9 @@
             </tr>
         </thead>
         <tbody>
-            ${data.articoli.slice(0, 25).map((art, index) => `
+            ${data.articoli.map((art, index) => `
             <tr>
-                <td>${art.descrizioneArticolo.substring(0, 40)}${art.descrizioneArticolo.length > 40 ? '...' : ''}</td>
+                <td>${art.descrizioneArticolo.substring(0, 50)}${art.descrizioneArticolo.length > 50 ? '...' : ''}</td>
                 <td class="amount">€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                 <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
@@ -1063,8 +1069,8 @@
                 <td><strong>TOTALI</strong></td>
                 <td class="amount"><strong>€ ${data.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                 <td class="amount"><strong>€ ${data.articoli.reduce((sum, art) => sum + art.costoUnitario, 0).toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td class="amount"><strong>€ ${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td><strong>-</strong></td>
+                <td class="amount"><strong>€ ${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                <td class="amount"><strong>${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
             </tr>
         </tbody>
     </table>
