@@ -471,10 +471,14 @@
                 timeline: '',
                 componenti: [],
                 servizi: [],
+                righeComplete: [],
+                headers: [],
                 riepilogo: {},
                 sheets: Object.keys(excelData),
                 rawData: null,
-                dataFound: false
+                dataFound: false,
+                numeroRighe: 0,
+                numeroColonne: 0
             };
 
             // Cerca specificamente il foglio "Analisi Economica"
@@ -519,98 +523,179 @@
 
             console.log(`Analizzando foglio: "${sheetName}"`);
             extracted.rawData = targetSheet;
+            extracted.numeroRighe = targetSheet.length;
+            extracted.numeroColonne = Math.max(...targetSheet.map(row => row ? row.length : 0));
 
-            // Analisi approfondita del foglio "Analisi Economica"
+            // === ESTRAZIONE HEADERS (prima riga significativa) ===
+            let headerRowIndex = 0;
+            for (let i = 0; i < Math.min(5, targetSheet.length); i++) {
+                const row = targetSheet[i];
+                if (row && row.some(cell => cell && cell.toString().trim())) {
+                    if (row.some(cell => cell && (
+                        cell.toString().toLowerCase().includes('descrizione') ||
+                        cell.toString().toLowerCase().includes('quantità') ||
+                        cell.toString().toLowerCase().includes('prezzo') ||
+                        cell.toString().toLowerCase().includes('totale')
+                    ))) {
+                        headerRowIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (targetSheet[headerRowIndex]) {
+                extracted.headers = targetSheet[headerRowIndex].map((cell, index) => ({
+                    colonna: index + 1,
+                    nome: cell ? cell.toString().trim() : `Colonna_${index + 1}`,
+                    originale: cell ? cell.toString() : ''
+                }));
+            }
+
+            // === ESTRAZIONE COMPLETA DI TUTTE LE RIGHE ===
             targetSheet.forEach((row, rowIndex) => {
-                if (!row || row.length === 0) return;
+                if (!row || rowIndex <= headerRowIndex) return;
                 
-                row.forEach((cell, colIndex) => {
-                    if (!cell) return;
+                // Controlla se la riga ha contenuto significativo
+                const hasContent = row.some(cell => cell && cell.toString().trim() && 
+                    !cell.toString().toLowerCase().includes('totale generale'));
+
+                if (hasContent) {
+                    const rigaCompleta = {
+                        numeroRiga: rowIndex + 1,
+                        dati: {},
+                        valoriGrezzi: [],
+                        isComponente: false,
+                        isServizio: false,
+                        isTestata: false
+                    };
+
+                    // Estrai tutti i valori di ogni colonna
+                    row.forEach((cell, colIndex) => {
+                        const valore = cell ? cell.toString().trim() : '';
+                        const nomeColonna = extracted.headers[colIndex]?.nome || `Col_${colIndex + 1}`;
+                        
+                        rigaCompleta.valoriGrezzi.push(valore);
+                        rigaCompleta.dati[nomeColonna] = valore;
+                        
+                        // Mappatura specifica per colonne standard
+                        rigaCompleta.dati[`colonna_${colIndex + 1}`] = valore;
+                    });
+
+                    // === ANALISI SPECIFICA DELLA TUA RIGA ESEMPIO ===
+                    // Riga 3: 1 Auditorium Smart Room - Multimedia 0 – Installazione/Sistemi Tecnologia EB-L630U Proiettore laser...
                     
-                    const cellStr = cell.toString().toLowerCase().trim();
-                    const nextCell = row[colIndex + 1];
-                    const cellBelow = targetSheet[rowIndex + 1] ? targetSheet[rowIndex + 1][colIndex] : null;
-                    const cellBelowNext = targetSheet[rowIndex + 1] ? targetSheet[rowIndex + 1][colIndex + 1] : null;
-
-                    // === ESTRAZIONE DATI CLIENTE ===
-                    if ((cellStr.includes('cliente') || cellStr.includes('customer') || cellStr.includes('client')) && 
-                        nextCell && !extracted.cliente) {
-                        extracted.cliente = nextCell.toString().trim();
+                    // Identifica il tipo di riga
+                    const primaColonna = rigaCompleta.valoriGrezzi[0] || '';
+                    const secondaColonna = rigaCompleta.valoriGrezzi[1] || '';
+                    
+                    if (primaColonna && !isNaN(parseInt(primaColonna))) {
+                        rigaCompleta.numeroProgressivo = parseInt(primaColonna);
+                        rigaCompleta.isComponente = true;
                     }
 
-                    // === ESTRAZIONE NOME PROGETTO ===
-                    if ((cellStr.includes('progetto') || cellStr.includes('project') || cellStr.includes('commessa')) && 
-                        nextCell && !extracted.progetto) {
-                        extracted.progetto = nextCell.toString().trim();
-                    }
+                    // Estrazione strutturata per componenti/prodotti
+                    if (rigaCompleta.isComponente) {
+                        const componente = {
+                            riga: rowIndex + 1,
+                            numeroProgressivo: rigaCompleta.numeroProgressivo,
+                            spazio: rigaCompleta.valoriGrezzi[1] || '',
+                            tipologia: rigaCompleta.valoriGrezzi[2] || '',
+                            categoria: rigaCompleta.valoriGrezzi[3] || '',
+                            codice: '',
+                            descrizione: '',
+                            quantita: 0,
+                            prezzoUnitario: 0,
+                            prezzoTotale: 0,
+                            costoUnitario: 0,
+                            costoTotale: 0,
+                            margineUnitario: 0,
+                            margineTotale: 0,
+                            moltiplicatore: 0,
+                            valoriCompleti: rigaCompleta.valoriGrezzi
+                        };
 
-                    // === ESTRAZIONE TOTALI ===
-                    if (cellStr.includes('totale') || cellStr.includes('total') || cellStr.includes('subtotal')) {
-                        // Cerca valore numerico nelle celle adiacenti
-                        [nextCell, cellBelow, cellBelowNext].forEach(adjacentCell => {
-                            if (adjacentCell && !isNaN(parseFloat(adjacentCell))) {
-                                const value = parseFloat(adjacentCell);
-                                if (value > extracted.totaleOfferta) {
-                                    extracted.totaleOfferta = value;
+                        // Cerca codice e descrizione prodotto nelle colonne successive
+                        for (let i = 3; i < rigaCompleta.valoriGrezzi.length; i++) {
+                            const valore = rigaCompleta.valoriGrezzi[i];
+                            if (valore) {
+                                // Se sembra un codice prodotto (lettere+numeri, breve)
+                                if (/^[A-Z0-9\-]{3,20}$/i.test(valore) && !componente.codice) {
+                                    componente.codice = valore;
+                                }
+                                // Se sembra una descrizione (più lunga, con spazi)
+                                else if (valore.length > 10 && valore.includes(' ') && !componente.descrizione) {
+                                    componente.descrizione = valore;
+                                }
+                                // Se è un numero, potrebbe essere qty o prezzo
+                                else if (!isNaN(parseFloat(valore.replace(/[€\s\.,]/g, '').replace(',', '.')))) {
+                                    const numero = parseFloat(valore.replace(/[€\s\.,]/g, '').replace(',', '.'));
+                                    
+                                    if (numero <= 100 && componente.quantita === 0) {
+                                        componente.quantita = numero;
+                                    } else if (numero > 100) {
+                                        if (componente.prezzoUnitario === 0) {
+                                            componente.prezzoUnitario = numero;
+                                        } else if (componente.prezzoTotale === 0) {
+                                            componente.prezzoTotale = numero;
+                                        } else if (componente.costoUnitario === 0) {
+                                            componente.costoUnitario = numero;
+                                        } else if (componente.costoTotale === 0) {
+                                            componente.costoTotale = numero;
+                                        } else if (componente.margineUnitario === 0) {
+                                            componente.margineUnitario = numero;
+                                        } else if (componente.margineTotale === 0) {
+                                            componente.margineTotale = numero;
+                                        }
+                                    } else if (numero < 10 && numero > 0 && componente.moltiplicatore === 0) {
+                                        componente.moltiplicatore = numero;
+                                    }
                                 }
                             }
-                        });
+                        }
+
+                        extracted.componenti.push(componente);
                     }
 
-                    // === ESTRAZIONE MARGINE ===
-                    if (cellStr.includes('margine') || cellStr.includes('margin') || cellStr.includes('markup')) {
-                        [nextCell, cellBelow, cellBelowNext].forEach(adjacentCell => {
-                            if (adjacentCell && !isNaN(parseFloat(adjacentCell))) {
-                                const value = parseFloat(adjacentCell);
-                                if (cellStr.includes('%') || value < 1) {
-                                    extracted.marginePct = value;
-                                } else {
-                                    extracted.margine = value;
-                                }
+                    // Cerca informazioni generali in tutte le righe
+                    rigaCompleta.valoriGrezzi.forEach((valore, index) => {
+                        if (!valore) return;
+                        const valoreStr = valore.toString().toLowerCase();
+                        
+                        // Cliente
+                        if (valoreStr.includes('cliente') || valoreStr.includes('customer')) {
+                            const prossimoValore = rigaCompleta.valoriGrezzi[index + 1];
+                            if (prossimoValore && !extracted.cliente) {
+                                extracted.cliente = prossimoValore;
                             }
-                        });
-                    }
-
-                    // === ESTRAZIONE TIMELINE ===
-                    if ((cellStr.includes('timeline') || cellStr.includes('delivery') || cellStr.includes('consegna') || 
-                         cellStr.includes('scadenza') || cellStr.includes('durata')) && nextCell && !extracted.timeline) {
-                        extracted.timeline = nextCell.toString().trim();
-                    }
-
-                    // === IDENTIFICAZIONE TABELLE COMPONENTI ===
-                    if (cellStr.includes('descrizione') || cellStr.includes('prodotto') || cellStr.includes('item') || 
-                        cellStr.includes('articolo') || cellStr.includes('component')) {
+                        }
                         
-                        // Cerca tabella prodotti a partire da questa riga
-                        extracted.componenti = extracted.componenti.concat(
-                            extractComponentsTable(targetSheet, rowIndex, colIndex)
-                        );
-                    }
+                        // Progetto
+                        if (valoreStr.includes('progetto') || valoreStr.includes('commessa')) {
+                            const prossimoValore = rigaCompleta.valoriGrezzi[index + 1];
+                            if (prossimoValore && !extracted.progetto) {
+                                extracted.progetto = prossimoValore;
+                            }
+                        }
+                    });
 
-                    // === IDENTIFICAZIONE SERVIZI ===
-                    if (cellStr.includes('servizi') || cellStr.includes('service') || cellStr.includes('installazione') || 
-                        cellStr.includes('configurazione') || cellStr.includes('supporto')) {
-                        
-                        extracted.servizi = extracted.servizi.concat(
-                            extractServicesTable(targetSheet, rowIndex, colIndex)
-                        );
-                    }
-                });
+                    extracted.righeComplete.push(rigaCompleta);
+                }
             });
 
-            // === PULIZIA E VALIDAZIONE DATI ===
-            extracted.componenti = removeDuplicateComponents(extracted.componenti);
-            extracted.servizi = removeDuplicateServices(extracted.servizi);
-
-            // Calcola riepilogo
+            // === CALCOLI RIEPILOGATIVI ===
             extracted.riepilogo = {
+                numeroRigheAnalizzate: extracted.righeComplete.length,
                 numeroComponenti: extracted.componenti.length,
                 numeroServizi: extracted.servizi.length,
                 valoreComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.prezzoTotale || 0), 0),
-                valoreServizi: extracted.servizi.reduce((sum, serv) => sum + (serv.prezzoTotale || 0), 0)
+                costoTotaleComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.costoTotale || 0), 0),
+                margineTotaleComponenti: extracted.componenti.reduce((sum, comp) => sum + (comp.margineTotale || 0), 0),
+                spazi: [...new Set(extracted.componenti.map(c => c.spazio).filter(s => s))],
+                tipologie: [...new Set(extracted.componenti.map(c => c.tipologia).filter(t => t))],
+                categorie: [...new Set(extracted.componenti.map(c => c.categoria).filter(c => c))]
             };
 
-            console.log('Dati estratti:', extracted);
+            console.log('Estrazione completa terminata:', extracted);
             return extracted;
         }
 
@@ -757,42 +842,107 @@
                 return;
             }
             
-            // Dati principali estratti
+            // Stats generali
             html += `<div class="bg-blue-50 p-4 rounded border border-blue-200">`;
-            html += `<strong class="text-blue-800">📊 Dati Principali Estratti dal Foglio "Analisi Economica":</strong><br><br>`;
-            html += `<div class="grid grid-cols-2 gap-4 text-sm">`;
+            html += `<strong class="text-blue-800">📊 Analisi Completa Foglio "Analisi Economica":</strong><br><br>`;
+            html += `<div class="grid grid-cols-3 gap-4 text-sm">`;
+            html += `<div><strong>Righe Totali:</strong> ${data.numeroRighe}</div>`;
+            html += `<div><strong>Colonne Max:</strong> ${data.numeroColonne}</div>`;
+            html += `<div><strong>Righe Analizzate:</strong> ${data.righeComplete.length}</div>`;
+            html += `<div><strong>Headers Trovati:</strong> ${data.headers.length}</div>`;
+            html += `<div><strong>Componenti:</strong> ${data.componenti.length}</div>`;
             html += `<div><strong>Cliente:</strong> ${data.cliente || 'Non trovato'}</div>`;
-            html += `<div><strong>Progetto:</strong> ${data.progetto || 'Non trovato'}</div>`;
-            html += `<div><strong>Totale Offerta:</strong> €${data.totaleOfferta.toLocaleString() || '0'}</div>`;
-            html += `<div><strong>Margine:</strong> €${data.margine.toLocaleString()} (${data.marginePct}%)</div>`;
-            html += `<div><strong>Timeline:</strong> ${data.timeline || 'Non specificata'}</div>`;
-            html += `<div><strong>Fogli totali:</strong> ${data.sheets.length}</div>`;
             html += `</div></div>`;
             
-            // Componenti/Prodotti
-            if (data.componenti.length > 0) {
-                html += `<div class="bg-green-50 p-4 rounded border border-green-200">`;
-                html += `<strong class="text-green-800">🛠️ Componenti/Prodotti Trovati (${data.componenti.length}):</strong><br><br>`;
-                html += `<div class="text-xs space-y-2 max-h-32 overflow-y-auto">`;
-                data.componenti.slice(0, 8).forEach((comp, index) => {
-                    html += `<div class="bg-white p-2 rounded border">`;
-                    html += `<strong>${comp.descrizione}</strong><br>`;
-                    html += `Codice: ${comp.codice} | Qty: ${comp.quantita} | Prezzo: €${comp.prezzoTotale.toLocaleString()} | Riga: ${comp.riga}`;
-                    html += `</div>`;
+            // Headers del foglio
+            if (data.headers.length > 0) {
+                html += `<div class="bg-purple-50 p-4 rounded border border-purple-200">`;
+                html += `<strong class="text-purple-800">📋 Headers/Colonne Rilevate:</strong><br><br>`;
+                html += `<div class="grid grid-cols-3 gap-2 text-xs">`;
+                data.headers.slice(0, 12).forEach(header => {
+                    html += `<div class="bg-white p-1 rounded border">Col ${header.colonna}: ${header.nome}</div>`;
                 });
-                if (data.componenti.length > 8) {
-                    html += `<div class="text-center text-gray-500 py-2">... e altri ${data.componenti.length - 8} componenti</div>`;
+                if (data.headers.length > 12) {
+                    html += `<div class="text-center text-gray-500">... e altre ${data.headers.length - 12} colonne</div>`;
                 }
                 html += `</div></div>`;
             }
             
-            // Servizi
-            if (data.servizi.length > 0) {
-                html += `<div class="bg-purple-50 p-4 rounded border border-purple-200">`;
-                html += `<strong class="text-purple-800">⚙️ Servizi Trovati (${data.servizi.length}):</strong><br><br>`;
-                html += `<div class="text-xs space-y-1">`;
-                data.servizi.slice(0, 5).forEach(serv => {
-                    html += `• ${serv.descrizione} - €${serv.prezzoTotale?.toLocaleString() || '0'}<br>`;
+            // Componenti dettagliati 
+            if (data.componenti.length > 0) {
+                html += `<div class="bg-green-50 p-4 rounded border border-green-200">`;
+                html += `<strong class="text-green-800">🛠️ Componenti Estratti (${data.componenti.length}):</strong><br><br>`;
+                html += `<div class="space-y-3 max-h-40 overflow-y-auto">`;
+                data.componenti.slice(0, 5).forEach((comp, index) => {
+                    html += `<div class="bg-white p-3 rounded border text-xs">`;
+                    html += `<div class="grid grid-cols-2 gap-2">`;
+                    html += `<div><strong>Riga ${comp.riga} - #${comp.numeroProgressivo}:</strong> ${comp.descrizione || 'Descrizione non trovata'}</div>`;
+                    html += `<div><strong>Codice:</strong> ${comp.codice || 'N/A'}</div>`;
+                    html += `<div><strong>Spazio:</strong> ${comp.spazio}</div>`;
+                    html += `<div><strong>Tipologia:</strong> ${comp.tipologia}</div>`;
+                    html += `<div><strong>Categoria:</strong> ${comp.categoria}</div>`;
+                    html += `<div><strong>Qty:</strong> ${comp.quantita}</div>`;
+                    html += `<div><strong>Prezzo Unit.:</strong> €${comp.prezzoUnitario.toLocaleString()}</div>`;
+                    html += `<div><strong>Prezzo Tot.:</strong> €${comp.prezzoTotale.toLocaleString()}</div>`;
+                    html += `<div><strong>Costo Unit.:</strong> €${comp.costoUnitario.toLocaleString()}</div>`;
+                    html += `<div><strong>Margine Tot.:</strong> €${comp.margineTotale.toLocaleString()}</div>`;
+                    html += `</div>`;
+                    html += `<div class="mt-2 text-gray-600"><strong>Dati grezzi:</strong> ${comp.valoriCompleti.slice(0, 8).join(' | ')}${comp.valoriCompleti.length > 8 ? '...' : ''}</div>`;
+                    html += `</div>`;
+                });
+                if (data.componenti.length > 5) {
+                    html += `<div class="text-center text-gray-500 py-2">... e altri ${data.componenti.length - 5} componenti</div>`;
+                }
+                html += `</div></div>`;
+            }
+            
+            // Riepilogo economico dettagliato
+            if (data.riepilogo) {
+                html += `<div class="bg-yellow-50 p-4 rounded border border-yellow-200">`;
+                html += `<strong class="text-yellow-800">💰 Riepilogo Completo:</strong><br><br>`;
+                html += `<div class="grid grid-cols-2 gap-4 text-sm">`;
+                html += `<div>`;
+                html += `<strong>Dati Numerici:</strong><br>`;
+                html += `• Righe analizzate: ${data.riepilogo.numeroRigheAnalizzate}<br>`;
+                html += `• Componenti trovati: ${data.riepilogo.numeroComponenti}<br>`;
+                html += `• Valore componenti: €${data.riepilogo.valoreComponenti.toLocaleString()}<br>`;
+                html += `• Costo totale: €${data.riepilogo.costoTotaleComponenti.toLocaleString()}<br>`;
+                html += `• Margine totale: €${data.riepilogo.margineTotaleComponenti.toLocaleString()}`;
+                html += `</div>`;
+                html += `<div>`;
+                html += `<strong>Spazi identificati:</strong><br>`;
+                if (data.riepilogo.spazi.length > 0) {
+                    data.riepilogo.spazi.slice(0, 5).forEach(spazio => {
+                        html += `• ${spazio}<br>`;
+                    });
+                    if (data.riepilogo.spazi.length > 5) {
+                        html += `... e altri ${data.riepilogo.spazi.length - 5}`;
+                    }
+                } else {
+                    html += `Nessuno spazio identificato`;
+                }
+                html += `</div>`;
+                html += `</div></div>`;
+            }
+            
+            // Prime 3 righe complete come esempio
+            if (data.righeComplete.length > 0) {
+                html += `<div class="bg-gray-50 p-4 rounded border">`;
+                html += `<strong class="text-gray-800">🔍 Esempio Prime Righe Complete:</strong><br><br>`;
+                html += `<div class="space-y-2 text-xs max-h-32 overflow-y-auto">`;
+                data.righeComplete.slice(0, 3).forEach(riga => {
+                    html += `<div class="bg-white p-2 rounded border">`;
+                    html += `<strong>Riga ${riga.numeroRiga}:</strong> ${riga.valoriGrezzi.slice(0, 10).join(' | ')}${riga.valoriGrezzi.length > 10 ? '...' : ''}`;
+                    html += `</div>`;
+                });
+                html += `</div></div>`;
+            }
+            
+            html += '</div>';
+            
+            previewContainer.innerHTML = html;
+            document.getElementById('excelDataPreview').classList.remove('hidden');
+        }• ${serv.descrizione} - €${serv.prezzoTotale?.toLocaleString() || '0'}<br>`;
                 });
                 if (data.servizi.length > 5) {
                     html += `... e altri ${data.servizi.length - 5} servizi`;
