@@ -44,6 +44,46 @@
 
     <!-- Main Content -->
     <div id="app" class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Pannello Monitoraggio Listini -->
+        <div id="priceMonitoringPanel" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+            <h4 class="font-medium text-blue-800 mb-3">🔄 Monitoraggio Automatico Listini</h4>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <button onclick="selectPriceFolder()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    📁 Seleziona Cartella Ufficio Acquisti
+                </button>
+                
+                <button onclick="toggleMonitoring()" id="monitoringBtn" class="bg-gray-400 text-white px-4 py-2 rounded" disabled>
+                    ▶️ Avvia Monitoraggio (ogni 15 min)
+                </button>
+            </div>
+            
+            <div id="monitoringStatus" class="mt-3 text-sm text-gray-600">
+                ⚪ Seleziona prima la cartella per iniziare
+            </div>
+        </div>
+
+        <!-- Notifica Nuovi File -->
+        <div id="newFilesAlert" class="hidden fixed top-4 right-4 bg-green-100 border border-green-400 rounded-lg p-4 shadow-lg z-50 max-w-sm">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5h5m-5-5v-5a5 5 0 00-10 0v5M9 12l2 2 4-4"></path>
+                </svg>
+                <div class="flex-1">
+                    <h5 class="font-medium text-green-800">🔔 Nuovi Listini Trovati!</h5>
+                    <div id="newFilesList" class="text-sm text-green-700 mt-1"></div>
+                    <div class="mt-3 flex gap-2">
+                        <button onclick="loadNewPricesNow()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                            Carica Ora
+                        </button>
+                        <button onclick="remindMeLater()" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">
+                            Dopo
+                        </button>
+                        <button onclick="hideNewFilesAlert()" class="text-green-600 px-2 hover:text-green-800">×</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Intro Section -->
         <div id="introSection" class="bg-white rounded-xl shadow-lg p-8">
             <div class="flex items-start mb-6">
@@ -865,6 +905,19 @@ Supporto tecnico di altissima qualità con **tecnici certificati da oltre 35 ann
         let extractedData = {};
         let generatedFileData = null;
 
+        // Price Monitoring Variables
+        let selectedFolder = null;
+        let monitoringInterval = null;
+        let knownFiles = new Set();
+        let isMonitoring = false;
+        
+        const MONITORING_CONFIG = {
+            intervalMinutes: 15,
+            brands: ['cisco', 'logitech', 'poly', 'yealink', 'barco', 'av', 'video', 'collaboration'],
+            excludeWords: ['telefonia', 'network', 'server', 'storage', 'pc', 'notebook', 'smartphone'],
+            fileTypes: ['.xlsx', '.xls', '.csv']
+        };
+
         // Navigation functions
         function showIntro() {
             document.getElementById('introSection').classList.remove('hidden');
@@ -872,6 +925,7 @@ Supporto tecnico di altissima qualità con **tecnici certificati da oltre 35 ann
             document.getElementById('spaceWizardSection').classList.add('hidden');
             document.getElementById('fileGeneratorSection').classList.add('hidden');
             document.getElementById('homeBtn').classList.add('hidden');
+            document.getElementById('priceMonitoringPanel').classList.add('hidden');
         }
         
         function showPostMeeting() {
@@ -880,6 +934,7 @@ Supporto tecnico di altissima qualità con **tecnici certificati da oltre 35 ann
             document.getElementById('spaceWizardSection').classList.add('hidden');
             document.getElementById('fileGeneratorSection').classList.add('hidden');
             document.getElementById('homeBtn').classList.remove('hidden');
+            document.getElementById('priceMonitoringPanel').classList.remove('hidden');
         }
 
         function showSpaceWizard() {
@@ -888,6 +943,7 @@ Supporto tecnico di altissima qualità con **tecnici certificati da oltre 35 ann
             document.getElementById('spaceWizardSection').classList.remove('hidden');
             document.getElementById('fileGeneratorSection').classList.add('hidden');
             document.getElementById('homeBtn').classList.remove('hidden');
+            document.getElementById('priceMonitoringPanel').classList.remove('hidden');
         }
 
         function showFileGenerator() {
@@ -1910,7 +1966,175 @@ function resetFileGenerator() {
     document.getElementById('generatedFiles').classList.add('hidden');
     document.getElementById('fileGeneratorForm').classList.remove('hidden');
 }
-
+// --- PRICE MONITORING FUNCTIONS ---
+        
+        function selectPriceFolder() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.webkitdirectory = true;
+            input.multiple = true;
+            
+            input.onchange = function(event) {
+                const files = Array.from(event.target.files);
+                if (files.length > 0) {
+                    selectedFolder = files;
+                    updateMonitoringStatus('📁 Cartella selezionata: ' + files[0].webkitRelativePath.split('/')[0]);
+                    
+                    // Abilita il pulsante di monitoraggio
+                    document.getElementById('monitoringBtn').disabled = false;
+                    document.getElementById('monitoringBtn').classList.remove('bg-gray-400');
+                    document.getElementById('monitoringBtn').classList.add('bg-green-600', 'hover:bg-green-700');
+                    
+                    // Memorizza i file attuali
+                    const avFiles = files.filter(isRelevantPriceFile);
+                    knownFiles.clear();
+                    avFiles.forEach(file => knownFiles.add(file.name + file.lastModified));
+                    
+                    showStatusMessage(`✅ Cartella configurata! Trovati ${avFiles.length} listini AV esistenti.`);
+                }
+            };
+            
+            input.click();
+        }
+        
+        function toggleMonitoring() {
+            if (isMonitoring) {
+                stopMonitoring();
+            } else {
+                startMonitoring();
+            }
+        }
+        
+        function startMonitoring() {
+            if (!selectedFolder) {
+                alert('Seleziona prima la cartella!');
+                return;
+            }
+            
+            isMonitoring = true;
+            
+            // Aggiorna UI
+            const btn = document.getElementById('monitoringBtn');
+            btn.innerHTML = '⏸️ Stop Monitoraggio';
+            btn.classList.remove('bg-green-600');
+            btn.classList.add('bg-red-600', 'hover:bg-red-700');
+            
+            // Avvia controlli periodici
+            monitoringInterval = setInterval(checkForNewFiles, MONITORING_CONFIG.intervalMinutes * 60 * 1000);
+            
+            updateMonitoringStatus(`🔄 Monitoraggio attivo (ogni ${MONITORING_CONFIG.intervalMinutes} min)`);
+            showStatusMessage('🔄 Monitoraggio automatico avviato!');
+        }
+        
+        function stopMonitoring() {
+            isMonitoring = false;
+            
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+            }
+            
+            // Aggiorna UI
+            const btn = document.getElementById('monitoringBtn');
+            btn.innerHTML = '▶️ Avvia Monitoraggio (ogni 15 min)';
+            btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+            btn.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            updateMonitoringStatus('⏸️ Monitoraggio fermato');
+            showStatusMessage('⏸️ Monitoraggio fermato');
+        }
+        
+        function checkForNewFiles() {
+            if (!selectedFolder || !isMonitoring) return;
+            
+            try {
+                const currentFiles = selectedFolder.filter(isRelevantPriceFile);
+                const newFiles = currentFiles.filter(file => 
+                    !knownFiles.has(file.name + file.lastModified)
+                );
+                
+                if (newFiles.length > 0) {
+                    showNewFilesNotification(newFiles);
+                    
+                    // Aggiorna file conosciuti
+                    newFiles.forEach(file => knownFiles.add(file.name + file.lastModified));
+                }
+                
+                const now = new Date().toLocaleTimeString('it-IT');
+                updateMonitoringStatus(`🔄 Ultimo controllo: ${now} (${newFiles.length} nuovi file)`);
+                
+            } catch (error) {
+                console.error('Errore controllo file:', error);
+                updateMonitoringStatus('❌ Errore nel controllo');
+            }
+        }
+        
+        function isRelevantPriceFile(file) {
+            const name = file.name.toLowerCase();
+            
+            // Deve avere estensione corretta
+            const hasValidExtension = MONITORING_CONFIG.fileTypes.some(ext => name.endsWith(ext));
+            if (!hasValidExtension) return false;
+            
+            // Deve contenere almeno una parola chiave AV
+            const hasAVKeyword = MONITORING_CONFIG.brands.some(keyword => name.includes(keyword));
+            
+            // Non deve contenere parole da escludere
+            const hasExcludedWord = MONITORING_CONFIG.excludeWords.some(excluded => name.includes(excluded));
+            
+            return hasAVKeyword && !hasExcludedWord;
+        }
+        
+        function showNewFilesNotification(newFiles) {
+            const alert = document.getElementById('newFilesAlert');
+            const filesList = document.getElementById('newFilesList');
+            
+            filesList.innerHTML = newFiles.map(file => `• ${file.name}`).join('<br>');
+            alert.classList.remove('hidden');
+            
+            // Beep sonoro (opzionale)
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Nuovi listini trovati');
+                utterance.volume = 0.1;
+                utterance.rate = 2;
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function loadNewPricesNow() {
+            alert('Funzione caricamento prezzi in sviluppo...');
+            hideNewFilesAlert();
+        }
+        
+        function remindMeLater() {
+            hideNewFilesAlert();
+            setTimeout(() => {
+                if (document.getElementById('newFilesAlert').classList.contains('hidden')) {
+                    showStatusMessage('💡 Ricorda: hai nuovi listini da controllare!');
+                }
+            }, 30 * 60 * 1000); // Ricorda dopo 30 minuti
+        }
+        
+        function hideNewFilesAlert() {
+            document.getElementById('newFilesAlert').classList.add('hidden');
+        }
+        
+        function updateMonitoringStatus(message) {
+            document.getElementById('monitoringStatus').textContent = message;
+        }
+        
+        function showStatusMessage(message) {
+            // Crea notifica temporanea
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-blue-100 border border-blue-400 rounded-lg p-3 shadow-lg z-50';
+            notification.innerHTML = `<span class="text-blue-800">${message}</span>`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
         // --- GLOBAL INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function() {
             // Set default view
