@@ -1968,139 +1968,266 @@ function resetFileGenerator() {
 }
 // --- PRICE MONITORING FUNCTIONS ---
         
-        function selectPriceFolder() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.webkitdirectory = true;
-            input.multiple = true;
+        let selectedFolders = [];
+
+        function renderFolderContent() {
+            const contentDiv = document.getElementById('folderContent');
+            const breadcrumb = document.getElementById('folderBreadcrumb');
+            const backBtn = document.getElementById('backBtn');
+            const selectBtn = document.getElementById('selectBtn');
             
-            input.onchange = function(event) {
-                const files = Array.from(event.target.files);
-                if (files.length > 0) {
-                    selectedFolder = files;
-                    updateMonitoringStatus('📁 Cartella selezionata: ' + files[0].webkitRelativePath.split('/')[0]);
-                    
-                    // Abilita il pulsante di monitoraggio
-                    document.getElementById('monitoringBtn').disabled = false;
-                    document.getElementById('monitoringBtn').classList.remove('bg-gray-400');
-                    document.getElementById('monitoringBtn').classList.add('bg-green-600', 'hover:bg-green-700');
-                    
-                    // Memorizza i file attuali
-                    const avFiles = files.filter(isRelevantPriceFile);
-                    knownFiles.clear();
-                    avFiles.forEach(file => knownFiles.add(file.name + file.lastModified));
-                    
-                    showStatusMessage(`✅ Cartella configurata! Trovati ${avFiles.length} listini AV esistenti.`);
-                }
-            };
+            // Mostra breadcrumb
+            const pathStr = currentPath.length === 0 ? 'Root' : currentPath.join(' / ');
+            breadcrumb.textContent = `📍 ${pathStr}`;
+            breadcrumb.classList.remove('hidden');
             
-            input.click();
-        }
-        
-        function toggleMonitoring() {
-            if (isMonitoring) {
-                stopMonitoring();
+            // Abilita/disabilita pulsante indietro
+            backBtn.disabled = currentPath.length === 0;
+            
+            // Ottieni file e cartelle nel percorso corrente
+            const currentFiles = getCurrentLevelFiles();
+            const folders = getCurrentLevelFolders();
+            
+            // Controlla se questa cartella contiene file AV interessanti
+            const avFiles = currentFiles.filter(isRelevantPriceFile);
+            
+            let html = '';
+            
+            // Mostra cartelle
+            if (folders.length > 0) {
+                html += '<div class="mb-3"><strong>📁 Cartelle disponibili:</strong></div>';
+                folders.forEach(folder => {
+                    const folderFiles = getFilesInFolder([...currentPath, folder]);
+                    const avCount = folderFiles.filter(isRelevantPriceFile).length;
+                    
+                    // Evidenzia cartelle dei brand interessanti
+                    const isBrandFolder = MONITORING_CONFIG.brands.some(brand => 
+                        folder.toLowerCase().includes(brand.toLowerCase())
+                    );
+                    const indicator = avCount > 0 ? `🔥 ${avCount} file AV` : '';
+                    const bgColor = isBrandFolder ? 'bg-yellow-100 border-yellow-300' : 'hover:bg-blue-100';
+                    
+                    html += `
+                        <div onclick="navigateToFolder('${folder}')" 
+                             class="flex justify-between items-center p-2 ${bgColor} cursor-pointer rounded border-b border">
+                            <span>${isBrandFolder ? '⭐' : '📁'} ${folder}</span>
+                            <span class="text-xs text-orange-600">${indicator}</span>
+                        </div>
+                    `;
+                });
+                html += '<br>';
+            }
+            
+            // Mostra file AV nella cartella corrente
+            if (avFiles.length > 0) {
+                html += `<div class="mb-3"><strong>📄 File AV trovati (${avFiles.length}):</strong></div>`;
+                avFiles.forEach(file => {
+                    const fileName = file.name;
+                    const brand = MONITORING_CONFIG.brands.find(b => fileName.toLowerCase().includes(b));
+                    html += `
+                        <div class="flex justify-between items-center p-2 bg-green-50 rounded border-b">
+                            <span>📄 ${fileName}</span>
+                            <span class="text-xs text-green-600">${brand?.toUpperCase() || 'AV'}</span>
+                        </div>
+                    `;
+                });
+                
+                // Mostra pulsante per selezionare questa cartella
+                selectBtn.classList.remove('hidden');
             } else {
-                startMonitoring();
+                selectBtn.classList.add('hidden');
+            }
+            
+            if (html === '') {
+                html = '<p class="text-gray-500 text-center py-4">Nessuna sottocartella o file AV trovati qui</p>';
+            }
+            
+            contentDiv.innerHTML = html;
+            contentDiv.classList.remove('hidden');
+        }
+
+        function getCurrentLevelFiles() {
+            return allFiles.filter(file => {
+                const filePath = file.webkitRelativePath.split('/');
+                filePath.pop(); // Rimuovi nome file
+                
+                return filePath.length === currentPath.length + 1 &&
+                       filePath.slice(0, currentPath.length).every((folder, i) => folder === currentPath[i]);
+            });
+        }
+
+        function getCurrentLevelFolders() {
+            const folders = new Set();
+            
+            allFiles.forEach(file => {
+                const filePath = file.webkitRelativePath.split('/');
+                filePath.pop(); // Rimuovi nome file
+                
+                if (filePath.length > currentPath.length &&
+                    filePath.slice(0, currentPath.length).every((folder, i) => folder === currentPath[i])) {
+                    folders.add(filePath[currentPath.length]);
+                }
+            });
+            
+            return Array.from(folders).sort();
+        }
+
+        function getFilesInFolder(folderPath) {
+            return allFiles.filter(file => {
+                const filePath = file.webkitRelativePath.split('/');
+                filePath.pop(); // Rimuovi nome file
+                
+                return filePath.length >= folderPath.length &&
+                       filePath.slice(0, folderPath.length).every((folder, i) => folder === folderPath[i]);
+            });
+        }
+
+        function navigateToFolder(folderName) {
+            currentPath.push(folderName);
+            renderFolderContent();
+        }
+
+        function goBackFolder() {
+            if (currentPath.length > 0) {
+                currentPath.pop();
+                renderFolderContent();
             }
         }
-        
-        function startMonitoring() {
-            if (!selectedFolder) {
-                alert('Seleziona prima la cartella!');
+
+        function selectCurrentFolder() {
+            const currentFiles = getFilesInFolder(currentPath);
+            const avFiles = currentFiles.filter(isRelevantPriceFile);
+            
+            if (avFiles.length === 0) {
+                alert('❌ Nessun file AV trovato in questa cartella');
                 return;
             }
             
-            isMonitoring = true;
+            // Controlla se la cartella è già stata selezionata
+            const folderPathStr = currentPath.join('/');
+            const alreadySelected = selectedFolders.some(f => f.path === folderPathStr);
             
-            // Aggiorna UI
-            const btn = document.getElementById('monitoringBtn');
-            btn.innerHTML = '⏸️ Stop Monitoraggio';
-            btn.classList.remove('bg-green-600');
-            btn.classList.add('bg-red-600', 'hover:bg-red-700');
-            
-            // Avvia controlli periodici
-            monitoringInterval = setInterval(checkForNewFiles, MONITORING_CONFIG.intervalMinutes * 60 * 1000);
-            
-            updateMonitoringStatus(`🔄 Monitoraggio attivo (ogni ${MONITORING_CONFIG.intervalMinutes} min)`);
-            showStatusMessage('🔄 Monitoraggio automatico avviato!');
-        }
-        
-        function stopMonitoring() {
-            isMonitoring = false;
-            
-            if (monitoringInterval) {
-                clearInterval(monitoringInterval);
-                monitoringInterval = null;
+            if (alreadySelected) {
+                alert('⚠️ Questa cartella è già stata selezionata');
+                return;
             }
             
-            // Aggiorna UI
-            const btn = document.getElementById('monitoringBtn');
-            btn.innerHTML = '▶️ Avvia Monitoraggio (ogni 15 min)';
-            btn.classList.remove('bg-red-600', 'hover:bg-red-700');
-            btn.classList.add('bg-green-600', 'hover:bg-green-700');
+            // Aggiungi cartella alla selezione
+            const folderInfo = {
+                path: folderPathStr,
+                files: avFiles
+            };
             
-            updateMonitoringStatus('⏸️ Monitoraggio fermato');
-            showStatusMessage('⏸️ Monitoraggio fermato');
+            selectedFolders.push(folderInfo);
+            
+            // Combina tutti i file delle cartelle selezionate
+            selectedFolder = selectedFolders.flatMap(folder => folder.files);
+            
+            updateSelectedFoldersDisplay();
+            
+            showStatusMessage(`✅ Aggiunta: ${folderPathStr} (${avFiles.length} file)`);
         }
-        
-        function checkForNewFiles() {
-            if (!selectedFolder || !isMonitoring) return;
+
+        function updateSelectedFoldersDisplay() {
+            const display = document.getElementById('selectedFoldersDisplay');
+            const list = document.getElementById('selectedFoldersList');
             
-            try {
-                const currentFiles = selectedFolder.filter(isRelevantPriceFile);
-                const newFiles = currentFiles.filter(file => 
-                    !knownFiles.has(file.name + file.lastModified)
-                );
+            if (selectedFolders.length > 0) {
+                let html = '';
+                selectedFolders.forEach((folder, index) => {
+                    html += `${index + 1}. 📁 ${folder.path} (${folder.files.length} file)<br>`;
+                });
                 
-                if (newFiles.length > 0) {
-                    showNewFilesNotification(newFiles);
-                    
-                    // Aggiorna file conosciuti
-                    newFiles.forEach(file => knownFiles.add(file.name + file.lastModified));
-                }
+                list.innerHTML = html;
+                display.classList.remove('hidden');
                 
-                const now = new Date().toLocaleTimeString('it-IT');
-                updateMonitoringStatus(`🔄 Ultimo controllo: ${now} (${newFiles.length} nuovi file)`);
-                
-            } catch (error) {
-                console.error('Errore controllo file:', error);
-                updateMonitoringStatus('❌ Errore nel controllo');
+                // Mostra pulsante "Fine Selezione"
+                document.getElementById('finishBtn').classList.remove('hidden');
+            } else {
+                display.classList.add('hidden');
+                document.getElementById('finishBtn').classList.add('hidden');
             }
         }
-        
+
+        function finishFolderSelection() {
+            if (selectedFolders.length === 0) {
+                alert('❌ Seleziona almeno una cartella');
+                return;
+            }
+            
+            const totalFiles = selectedFolder.length;
+            const foldersCount = selectedFolders.length;
+            
+            // Aggiorna UI principale
+            updateMonitoringStatus(`📁 Selezionate ${foldersCount} cartelle con ${totalFiles} file AV totali`);
+            
+            // Abilita monitoraggio
+            document.getElementById('monitoringBtn').disabled = false;
+            document.getElementById('monitoringBtn').classList.remove('bg-gray-400');
+            document.getElementById('monitoringBtn').classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            // Memorizza tutti i file
+            knownFiles.clear();
+            selectedFolder.forEach(file => knownFiles.add(file.name + file.lastModified));
+            
+            showSelectedFoldersInStatus();
+            showStatusMessage(`🎉 Configurazione completata! ${foldersCount} cartelle con ${totalFiles} file totali.`);
+            
+            closeFolderNavigator();
+        }
+
+        function showSelectedFoldersInStatus() {
+            const statusDiv = document.getElementById('monitoringStatus');
+            let html = '<br><strong>Cartelle monitorate:</strong><br>';
+            
+            selectedFolders.forEach((folder, index) => {
+                html += `${index + 1}. 📁 ${folder.path} (${folder.files.length} file)<br>`;
+            });
+            
+            statusDiv.innerHTML = html;
+        }
+
+        function closeFolderNavigator() {
+            const modal = document.getElementById('folderNavigatorModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function startMonitoring() {
+            if (!selectedFolder || selectedFolder.length === 0) {
+                alert('Seleziona prima le cartelle dei listini!');
+                return;
+            }
+            
+            checkForUpdatedFiles();
+        }
+
+        function checkForUpdatedFiles() {
+            const totalFiles = selectedFolder.length;
+            const foldersCount = selectedFolders.length;
+            
+            alert(`🔄 File attualmente monitorati:\n\n📁 ${foldersCount} cartelle\n📄 ${totalFiles} file totali\n\n💡 Per aggiornare: riseleziona le cartelle e il sistema confronterà automaticamente le date di modifica`);
+            
+            selectPriceFolder();
+        }
+
         function isRelevantPriceFile(file) {
-    const name = file.name.toLowerCase();
-    
-    // Deve avere estensione corretta
-    const hasValidExtension = MONITORING_CONFIG.fileTypes.some(ext => name.endsWith(ext));
-    if (!hasValidExtension) return false;
-    
-    // DEVE contenere ESATTAMENTE una di queste parole: yealink, cisco, poly, logitech, barco
-    const hasExactBrand = MONITORING_CONFIG.brands.some(brand => name.includes(brand));
-    
-    // Non deve contenere parole da escludere
-    const hasExcludedWord = MONITORING_CONFIG.excludeWords.some(excluded => name.includes(excluded));
-    
-    return hasExactBrand && !hasExcludedWord;
-    } 
-        
-        function showNewFilesNotification(newFiles) {
-            const alert = document.getElementById('newFilesAlert');
-            const filesList = document.getElementById('newFilesList');
+            const name = file.name.toLowerCase();
             
-            filesList.innerHTML = newFiles.map(file => `• ${file.name}`).join('<br>');
-            alert.classList.remove('hidden');
+            // Deve avere estensione corretta
+            const hasValidExtension = MONITORING_CONFIG.fileTypes.some(ext => name.endsWith(ext));
+            if (!hasValidExtension) return false;
             
-            // Beep sonoro (opzionale)
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance('Nuovi listini trovati');
-                utterance.volume = 0.1;
-                utterance.rate = 2;
-                speechSynthesis.speak(utterance);
-            }
+            // DEVE contenere ESATTAMENTE una di queste parole: yealink, cisco, poly, logitech, barco
+            const hasExactBrand = MONITORING_CONFIG.brands.some(brand => name.includes(brand));
+            
+            // Non deve contenere parole da escludere
+            const hasExcludedWord = MONITORING_CONFIG.excludeWords.some(excluded => name.includes(excluded));
+            
+            return hasExactBrand && !hasExcludedWord;
         }
-        
+
         function loadNewPricesNow() {
             alert('Funzione caricamento prezzi in sviluppo...');
             hideNewFilesAlert();
@@ -2112,7 +2239,7 @@ function resetFileGenerator() {
                 if (document.getElementById('newFilesAlert').classList.contains('hidden')) {
                     showStatusMessage('💡 Ricorda: hai nuovi listini da controllare!');
                 }
-            }, 30 * 60 * 1000); // Ricorda dopo 30 minuti
+            }, 30 * 60 * 1000);
         }
         
         function hideNewFilesAlert() {
@@ -2124,7 +2251,6 @@ function resetFileGenerator() {
         }
         
         function showStatusMessage(message) {
-            // Crea notifica temporanea
             const notification = document.createElement('div');
             notification.className = 'fixed bottom-4 right-4 bg-blue-100 border border-blue-400 rounded-lg p-3 shadow-lg z-50';
             notification.innerHTML = `<span class="text-blue-800">${message}</span>`;
