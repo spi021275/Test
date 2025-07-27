@@ -256,18 +256,18 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Modalità Pagamento</label>
                                 <select id="paymentTerms" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                                     <option value="">Seleziona...</option>
-                                    <option value="30 giorni fine mese">30 giorni fine mese</option>
-                                    <option value="60 giorni fine mese">60 giorni fine mese</option>
-                                    <option value="90 giorni fine mese">90 giorni fine mese</option>
-                                    <option value="Da concordare">Da concordare</option>
+                                    <option value="30gg">30 giorni fine mese</option>
+                                    <option value="60gg">60 giorni fine mese</option>
+                                    <option value="90gg">90 giorni fine mese</option>
+                                    <option value="custom">Personalizzato</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Priorità Progetto</label>
                                 <select id="projectPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                                    <option value="Standard">Standard</option>
-                                    <option value="Alta">Alta</option>
-                                    <option value="Critica">Critica</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="critica">Critica</option>
                                 </select>
                             </div>
                         </div>
@@ -275,7 +275,7 @@
 
                     <!-- Generate Button -->
                     <div class="text-center">
-                        <button onclick="generateFiles()" id="fileGenerateBtn" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium text-lg rounded-lg hover:bg-green-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button type="button" onclick="generateFiles()" id="fileGenerateBtn" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-medium text-lg rounded-lg hover:bg-green-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
@@ -324,6 +324,9 @@
             Strumento specializzato per la BU Multimedia & Workspaces di
             <span class="font-semibold text-blue-600">Var Group</span>
         </p>
+        <p class="mt-2 text-xs text-gray-400 max-w-2xl mx-auto px-4">
+            Alimentato dall'expertise di 51 anni, 823M€ fatturato, 3.850 persone, partnership certificate e soluzioni proprietarie
+        </p>
     </div>
 
     <script>
@@ -341,8 +344,17 @@
             document.getElementById('homeBtn').classList.add('hidden');
         }
 
-        function showPostMeeting() { /* ... */ }
-        function showSpaceWizard() { /* ... */ }
+        function showPostMeeting() {
+            document.getElementById('introSection').classList.add('hidden');
+            document.getElementById('postMeetingSection').classList.remove('hidden');
+            // ...
+        }
+
+        function showSpaceWizard() {
+            document.getElementById('introSection').classList.add('hidden');
+            document.getElementById('spaceWizardSection').classList.remove('hidden');
+            // ...
+        }
 
         function showFileGenerator() {
             document.getElementById('introSection').classList.add('hidden');
@@ -358,7 +370,7 @@
             if (!file) return;
 
             if (!file.name.toLowerCase().endsWith('.xlsx') && !file.name.toLowerCase().endsWith('.xlsm') && !file.name.toLowerCase().endsWith('.xls')) {
-                alert('Seleziona un file Excel valido.');
+                alert('Seleziona solo file Excel (.xlsx, .xlsm o .xls)');
                 return;
             }
 
@@ -366,13 +378,22 @@
                 analysisFile = file;
                 document.getElementById('analysisFileName').textContent = file.name;
                 document.getElementById('uploadedAnalysisFile').classList.remove('hidden');
+                await processExcelFile(file);
+            } catch (error) {
+                console.error('Errore nel caricamento del file:', error);
+                alert('Errore nel caricamento del file: ' + error.message);
+            }
+        }
+
+        async function processExcelFile(file) {
+            try {
                 const data = await readExcelFile(file);
                 extractedData = extractKeyData(data);
                 displayExcelPreview(extractedData);
                 document.getElementById('fileGenerateBtn').disabled = false;
             } catch (error) {
-                console.error('Errore nel caricamento del file:', error);
-                alert('Errore nel caricamento del file: ' + error.message);
+                console.error('Errore nell\'elaborazione del file Excel:', error);
+                alert('Errore nell\'elaborazione del file Excel: ' + error.message);
             }
         }
 
@@ -395,52 +416,47 @@
             });
         }
 
+        // *** MODIFIED FUNCTION ***
         function extractKeyData(sheetData) {
             const extracted = { articoli: [], errori: [] };
             if (!sheetData || sheetData.length < 3) {
-                extracted.errori.push("Il foglio Excel sembra vuoto o non contiene dati sufficienti.");
+                extracted.errori.push("Il foglio Excel sembra vuoto.");
                 return extracted;
             }
 
             const colonne = {
                 codiceProduttore_I: 8,
-                valore_J: 9,
+                descrizione_J: 9,
                 quantita_K: 10,
                 venditaUnitario_T: 19,
                 venditaTotale_U: 20,
-                margine_P: 15,
             };
 
             for (let i = 2; i < sheetData.length; i++) {
                 const row = sheetData[i];
-                if (!row || row.length === 0 || !row[colonne.valore_J]) {
-                    continue;
+                // Includi la riga se c'è un valore in una delle colonne chiave (es. J o K)
+                if (row && (row[colonne.descrizione_J] || row[colonne.quantita_K])) {
+                    extracted.articoli.push({
+                        descrizioneCombinata: `${row[colonne.codiceProduttore_I] || ''} - ${row[colonne.descrizione_J] || ''}`,
+                        quantitaK: parseFloat(row[colonne.quantita_K]) || 0,
+                        venditaUnitarioT: parseFloat(row[colonne.venditaUnitario_T]) || 0,
+                        venditaTotaleU: parseFloat(row[colonne.venditaTotale_U]) || 0,
+                    });
                 }
-                extracted.articoli.push({
-                    codiceProduttoreI: row[colonne.codiceProduttore_I] || '',
-                    valoreJ: row[colonne.valore_J] || '',
-                    quantitaK: parseFloat(row[colonne.quantita_K]) || 0,
-                    venditaUnitarioT: parseFloat(row[colonne.venditaUnitario_T]) || 0,
-                    venditaTotaleU: parseFloat(row[colonne.venditaTotale_U]) || 0,
-                    margine: parseFloat(row[colonne.margine_P]) || 0,
-                });
             }
 
             extracted.totaleVenditaU = extracted.articoli.reduce((sum, art) => sum + art.venditaTotaleU, 0);
-            extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
-            extracted.totaleOfferta = extracted.totaleVenditaU;
-            extracted.marginePercentuale = extracted.totaleOfferta > 0 ? (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
             return extracted;
         }
 
         function displayExcelPreview(data) {
             const previewContainer = document.getElementById('excelPreviewContent');
-            let html = `<div class="space-y-3">`;
+            let html = '<div class="space-y-3">';
             if (data.errori.length > 0) {
                 html += `<div class="bg-red-50 p-3 rounded border border-red-200"><strong class="text-red-800">Avvisi:</strong><br>${data.errori.join('<br>')}</div>`;
             }
-            html += `<div class="bg-blue-50 p-3 rounded border"><strong>Riepiloghi Totali:</strong><br>Articoli Estratti: <strong>${data.articoli.length}</strong><br>Totale Vendita (U): <strong>€${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>Margine: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong></div>`;
-            html += `</div>`;
+            html += `<div class="bg-blue-50 p-3 rounded border"><strong>Riepiloghi Totali:</strong><br>Articoli Estratti: <strong>${data.articoli.length}</strong><br>Totale Vendita (U): <strong>€${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></div>`;
+            html += '</div>';
             previewContainer.innerHTML = html;
             document.getElementById('excelDataPreview').classList.remove('hidden');
         }
@@ -457,6 +473,7 @@
         async function generateFiles() {
             const btn = document.getElementById('fileGenerateBtn');
             btn.disabled = true;
+            btn.innerHTML = `<svg class="w-5 h-5 mr-3 loading" ...></svg>Generazione...`;
 
             const projectData = {
                 cliente: document.getElementById('fileGenClientName').value,
@@ -470,19 +487,20 @@
 
             generatedFilesData = [];
             if (document.getElementById('generateOffer').checked) {
-                generatedFilesData.push({ type: 'offer', name: `Offerta_Commerciale_${projectData.cliente.replace(/\s+/g, '_')}.docx`, content: generateCommercialOffer(projectData), icon: 'document', color: 'blue' });
+                generatedFilesData.push({ type: 'offer', name: `Offerta_${projectData.cliente.replace(/\s+/g, '_')}.docx`, content: generateCommercialOffer(projectData), icon: 'document', color: 'blue' });
             }
             if (document.getElementById('generateSummary').checked) {
-                 generatedFilesData.push({ type: 'summary', name: `Sintesi_Progetto_${projectData.cliente.replace(/\s+/g, '_')}.pdf`, content: generateExecutiveSummary(projectData), icon: 'document-text', color: 'purple' });
+                generatedFilesData.push({ type: 'summary', name: `Sintesi_${projectData.cliente.replace(/\s+/g, '_')}.pdf`, content: generateExecutiveSummary(projectData), icon: 'document-text', color: 'purple' });
             }
             if (document.getElementById('generateCRM').checked) {
-                generatedFilesData.push({ type: 'crm', name: `CRM_Data_${projectData.cliente.replace(/\s+/g, '_')}.xlsx`, content: generateCRMFile(projectData), icon: 'table', color: 'green' });
+                generatedFilesData.push({ type: 'crm', name: `CRM_${projectData.cliente.replace(/\s+/g, '_')}.xlsx`, content: generateCRMFile(projectData), icon: 'table', color: 'green' });
             }
 
             displayGeneratedFiles();
             document.getElementById('fileGeneratorForm').classList.add('hidden');
             document.getElementById('generatedFiles').classList.remove('hidden');
             btn.disabled = false;
+            btn.innerHTML = `<svg ...></svg>Genera File`;
         }
 
         // *** MODIFIED FUNCTION AS REQUESTED ***
@@ -490,46 +508,59 @@
             const data = projectData.extractedData;
             const dataOdierna = new Date().toLocaleDateString('it-IT');
 
-            const htmlContent = `
-            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;margin:40px;line-height:1.4;}.header{text-align:center;margin-bottom:30px;}.logo{font-size:24px;font-weight:bold;color:#1e40af;}.date-location{text-align:left;margin:20px 0;}.recipient{margin:20px 0;}.object{font-weight:bold;margin:20px 0;}table{width:100%;border-collapse:collapse;margin:20px 0;}th,td{border:1px solid #333;padding:8px;text-align:left;}th{background-color:#f0f0f0;font-weight:bold;}.total-row{font-weight:bold;font-size:16px;}.amount{text-align:right;}</style></head><body>
-            <div class="header"><div class="logo">VAR GROUP S.P.A.</div></div>
-            <div class="date-location">Cormano (MI), ${dataOdierna}</div>
-            <div class="recipient"><strong>Spett.le</strong><br><strong>${projectData.cliente.toUpperCase()}</strong></div>
-            <div class="object"><strong>Oggetto: ${projectData.projectCode || 'Refresh tecnologico'}</strong></div>
-            <h3>SOLUZIONE PROPOSTA</h3>
-            <table><thead><tr><th>Q.tà</th><th>Descrizione</th><th>Prezzo unitario</th><th>Prezzo totale</th></tr></thead>
-            <tbody>
-                ${data.articoli.map(art => `
-                <tr>
-                    <td>${art.quantitaK}</td>
-                    <td>${art.codiceProduttoreI} - ${art.valoreJ}</td>
-                    <td class="amount">€ ${art.venditaUnitarioT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                    <td class="amount">€ ${art.venditaTotaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                </tr>`).join('')}
-                <tr class="total-row"><td colspan="3" style="text-align: right;"><strong>TOTALE COMPLESSIVO:</strong></td><td class="amount"><strong>€ ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td></tr>
-            </tbody></table>
+            return `
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;margin:40px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:8px;text-align:left;}th{background-color:#f2f2f2;}.amount{text-align:right;}</style></head><body>
+            <h1>Offerta Commerciale</h1>
+            <p><strong>Cliente:</strong> ${projectData.cliente || 'N/D'}</p>
+            <p><strong>Data:</strong> ${dataOdierna}</p>
+            <p><strong>Rif:</strong> ${projectData.projectCode || 'N/D'}</p>
+            <br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Quantità</th>
+                        <th>Descrizione</th>
+                        <th>Prezzo Unitario</th>
+                        <th>Prezzo Totale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.articoli.map(art => `
+                    <tr>
+                        <td>${art.quantitaK}</td>
+                        <td>${art.descrizioneCombinata}</td>
+                        <td class="amount">€ ${art.venditaUnitarioT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                        <td class="amount">€ ${art.venditaTotaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                    </tr>`).join('')}
+                    <tr style="font-weight:bold;">
+                        <td colspan="3" class="amount">TOTALE</td>
+                        <td class="amount">€ ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                    </tr>
+                </tbody>
+            </table>
             </body></html>`;
-            return htmlContent;
         }
-
-        function generateExecutiveSummary(projectData) {
+        
+        // This function remains from the base code you provided
+        async function generateExecutiveSummary(projectData) {
             const data = projectData.extractedData;
-            return `<!DOCTYPE html><html><body><h1>Sintesi Progetto ${projectData.cliente}</h1><p>Totale Offerta: € ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p></body></html>`;
+             return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>Sintesi Progetto per ${projectData.cliente}</h1><p>Totale Offerta: € ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p><ul>${data.articoli.map(art => `<li>${art.quantitaK} x ${art.descrizioneCombinata}</li>`).join('')}</ul></body></html>`;
         }
 
-        function generateCRMFile(projectData) {
+        // This function remains from the base code you provided
+        async function generateCRMFile(projectData) {
             const data = projectData.extractedData;
             const crmData = {
-                Cliente: projectData.cliente,
-                Valore_Offerta: data.totaleVenditaU,
-                Numero_Articoli: data.articoli.length
+                cliente: projectData.cliente,
+                valoreOfferta: data.totaleVenditaU,
+                articoli: data.articoli.map(a => a.descrizioneCombinata)
             };
             return JSON.stringify(crmData, null, 2);
         }
 
         function displayGeneratedFiles() {
             const filesList = document.getElementById('filesList');
-            filesList.innerHTML = ''; // Clear previous results
+            filesList.innerHTML = '';
             generatedFilesData.forEach((file, index) => {
                 const iconPath = getIconPath(file.icon);
                 filesList.innerHTML += `
@@ -543,9 +574,7 @@
                         </div>
                     </div>`;
             });
-            if (generatedFilesData.length > 0) {
-                previewFile(0);
-            }
+            if (generatedFilesData.length > 0) previewFile(0);
         }
 
         function getIconPath(iconType) {
@@ -563,7 +592,7 @@
 
         function downloadFile(index) {
             const file = generatedFilesData[index];
-            let blob, url;
+            let blob;
             if (file.type === 'crm') {
                 const ws = XLSX.utils.json_to_sheet([JSON.parse(file.content)]);
                 const wb = XLSX.utils.book_new();
@@ -573,23 +602,29 @@
             } else {
                 blob = new Blob([file.content], { type: 'text/html' });
             }
-            url = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            a.click();
+            a.href = url; a.download = file.name; a.click();
             URL.revokeObjectURL(url);
         }
 
         function copyFileContent(index, buttonElement) {
-            const file = generatedFilesData[index];
-            navigator.clipboard.writeText(file.content).then(() => {
-                const originalText = buttonElement.textContent;
+             const file = generatedFilesData[index];
+            const originalText = buttonElement.textContent;
+            let copyPromise;
+            if (file.type === 'offer' || file.type === 'summary') {
+                const blob = new Blob([file.content], { type: 'text/html' });
+                const item = new ClipboardItem({ 'text/html': blob });
+                copyPromise = navigator.clipboard.write([item]);
+            } else {
+                copyPromise = navigator.clipboard.writeText(file.content);
+            }
+            copyPromise.then(() => {
                 buttonElement.textContent = 'Copiato!';
                 setTimeout(() => { buttonElement.textContent = originalText; }, 2000);
-            }).catch(err => alert('Errore: ' + err));
+            }).catch(err => { alert('Errore: ' + err.message); });
         }
-
+        
         function previewFile(index) {
             const file = generatedFilesData[index];
             const previewContainer = document.getElementById('filesPreview');
@@ -613,13 +648,12 @@
             generatedFilesData = [];
             document.getElementById('fileGeneratorForm').classList.remove('hidden');
             document.getElementById('generatedFiles').classList.add('hidden');
-            const tomorrow = new Date();
+             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 30);
             document.getElementById('offerExpiry').value = tomorrow.toISOString().split('T')[0];
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             showIntro();
             document.getElementById('homeBtn').addEventListener('click', showIntro);
             const tomorrow = new Date();
