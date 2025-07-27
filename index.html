@@ -82,9 +82,10 @@
                         <!-- File preview will be displayed here -->
                     </div>
                     <div class="text-center">
+                         <!-- *** MODIFIED BUTTON TEXT *** -->
                          <button onclick="resetFileGenerator()" class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-lg hover:bg-gray-400">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            Crea una Nuova Offerta
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            Torna Indietro (Nuova Offerta)
                         </button>
                     </div>
                 </div>
@@ -177,7 +178,6 @@
             return extracted;
         }
 
-        // *** MODIFIED FUNCTION WITH NEW HEADERS ***
         function generateCommercialOffer(projectData) {
             const data = projectData.extractedData;
             const dataOdierna = new Date().toLocaleDateString('it-IT');
@@ -284,7 +284,7 @@
         
         function downloadFile() {
             const file = generatedFileData;
-            const fullHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Offerta Commerciale</title></head><body>${file.content}</body></html>`;
+            const fullHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Offerta Commerciale - ${file.name.replace('.html', '')}</title>${generateCommercialOffer({extractedData:{articoli:[]}}).match(/<style>.*?<\/style>/s)[0]}</head><body>${file.content}</body></html>`;
             const blob = new Blob([fullHtml], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -331,4 +331,4 @@
         });
     </script>
 </body>
-</html>
+</html>```
