@@ -912,10 +912,10 @@ Supporto tecnico di altissima qualità con **tecnici certificati da oltre 35 ann
         let isMonitoring = false;
         
         const MONITORING_CONFIG = {
-            intervalMinutes: 15,
-            brands: ['cisco', 'logitech', 'poly', 'yealink', 'barco', 'av', 'video', 'collaboration'],
-            excludeWords: ['telefonia', 'network', 'server', 'storage', 'pc', 'notebook', 'smartphone'],
-            fileTypes: ['.xlsx', '.xls', '.csv']
+        intervalMinutes: 15,
+        brands: ['yealink', 'cisco', 'poly', 'logitech', 'barco'],
+        excludeWords: ['telefonia', 'network', 'server', 'storage', 'pc', 'notebook', 'smartphone', 'switch', 'router', 'firewall'],
+        fileTypes: ['.xlsx', '.xls', '.csv']
         };
 
         // Navigation functions
@@ -2070,20 +2070,20 @@ function resetFileGenerator() {
         }
         
         function isRelevantPriceFile(file) {
-            const name = file.name.toLowerCase();
-            
-            // Deve avere estensione corretta
-            const hasValidExtension = MONITORING_CONFIG.fileTypes.some(ext => name.endsWith(ext));
-            if (!hasValidExtension) return false;
-            
-            // Deve contenere almeno una parola chiave AV
-            const hasAVKeyword = MONITORING_CONFIG.brands.some(keyword => name.includes(keyword));
-            
-            // Non deve contenere parole da escludere
-            const hasExcludedWord = MONITORING_CONFIG.excludeWords.some(excluded => name.includes(excluded));
-            
-            return hasAVKeyword && !hasExcludedWord;
-        }
+    const name = file.name.toLowerCase();
+    
+    // Deve avere estensione corretta
+    const hasValidExtension = MONITORING_CONFIG.fileTypes.some(ext => name.endsWith(ext));
+    if (!hasValidExtension) return false;
+    
+    // DEVE contenere ESATTAMENTE una di queste parole: yealink, cisco, poly, logitech, barco
+    const hasExactBrand = MONITORING_CONFIG.brands.some(brand => name.includes(brand));
+    
+    // Non deve contenere parole da escludere
+    const hasExcludedWord = MONITORING_CONFIG.excludeWords.some(excluded => name.includes(excluded));
+    
+    return hasExactBrand && !hasExcludedWord;
+    } 
         
         function showNewFilesNotification(newFiles) {
             const alert = document.getElementById('newFilesAlert');
