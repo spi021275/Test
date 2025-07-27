@@ -113,7 +113,7 @@
                 analysisFile = file;
                 document.getElementById('analysisFileName').textContent = file.name;
                 document.getElementById('uploadedAnalysisFile').classList.remove('hidden', 'fade-in');
-                void document.getElementById('uploadedAnalysisFile').offsetWidth; // Trigger reflow
+                void document.getElementById('uploadedAnalysisFile').offsetWidth;
                 document.getElementById('uploadedAnalysisFile').classList.add('fade-in');
                 
                 await processExcelFile(file);
@@ -154,10 +154,6 @@
             });
         }
 
-        /**
-         * Extracts data from the Excel sheet based on the new logic.
-         * A row is considered valid if column K (quantity) is a number greater than 0.
-         */
         function extractKeyData(sheetData) {
             const extracted = { articoli: [] };
             const colonne = { I: 8, J: 9, K: 10, T: 19, U: 20 };
@@ -181,62 +177,58 @@
             return extracted;
         }
 
-        /**
-         * Generates the final commercial offer HTML.
-         * The table now includes exactly the 5 requested columns.
-         */
         function generateCommercialOffer(projectData) {
             const data = projectData.extractedData;
             const dataOdierna = new Date().toLocaleDateString('it-IT');
 
+            // The content is now just the inner part, without the <html> and <body> tags,
+            // as it will be injected into a div. The styles are applied by the main page.
             return `
-            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;margin:40px;}h2{color:#1e3a8a;}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt}th{background-color:#eff6ff;color:#1e3a8a;font-weight:bold;}.amount{text-align:right;}</style></head><body>
-            <h2>Offerta Commerciale</h2>
-            <p><strong>Cliente:</strong> ${projectData.cliente || 'N/D'}<br>
-            <strong>Data:</strong> ${dataOdierna}<br>
-            <strong>Rif:</strong> ${projectData.projectCode || 'N/D'}</p>
-            <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Colonna I</th>
-                        <th>Colonna J</th>
-                        <th>Colonna K (Q.tà)</th>
-                        <th class="amount">Colonna T (P. Unitario)</th>
-                        <th class="amount">Colonna U (P. Totale)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.articoli.map(art => `
-                    <tr>
-                        <td>${art.colonnaI}</td>
-                        <td>${art.colonnaJ}</td>
-                        <td>${art.colonnaK}</td>
-                        <td class="amount">€ ${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                        <td class="amount">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                    </tr>`).join('')}
-                    <tr style="font-weight:bold; background-color:#eff6ff;">
-                        <td colspan="4" class="amount">TOTALE COMPLESSIVO</td>
-                        <td class="amount">€ ${data.totaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                    </tr>
-                </tbody>
-            </table>
-            </body></html>`;
+            <div style="font-family:Arial,sans-serif;margin:1rem;">
+                <h2 style="color:#1e3a8a; font-size: 1.5rem; font-weight: bold;">Offerta Commerciale</h2>
+                <p><strong>Cliente:</strong> ${projectData.cliente || 'N/D'}<br>
+                <strong>Data:</strong> ${dataOdierna}<br>
+                <strong>Rif:</strong> ${projectData.projectCode || 'N/D'}</p>
+                <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
+                <table style="width:100%;border-collapse:collapse;margin-top:20px">
+                    <thead>
+                        <tr>
+                            <th style="border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt;background-color:#eff6ff;color:#1e3a8a;font-weight:bold;">Colonna I</th>
+                            <th style="border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt;background-color:#eff6ff;color:#1e3a8a;font-weight:bold;">Colonna J</th>
+                            <th style="border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt;background-color:#eff6ff;color:#1e3a8a;font-weight:bold;">Colonna K (Q.tà)</th>
+                            <th style="border:1px solid #ddd;padding:8px;text-align:right;font-size:10pt;background-color:#eff6ff;color:#1e3a8a;font-weight:bold;">Colonna T (P. Unitario)</th>
+                            <th style="border:1px solid #ddd;padding:8px;text-align:right;font-size:10pt;background-color:#eff6ff;color:#1e3a8a;font-weight:bold;">Colonna U (P. Totale)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.articoli.map(art => `
+                        <tr>
+                            <td style="border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt;">${art.colonnaI}</td>
+                            <td style="border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt;">${art.colonnaJ}</td>
+                            <td style="border:1px solid #ddd;padding:8px;text-align:left;font-size:10pt;">${art.colonnaK}</td>
+                            <td style="border:1px solid #ddd;padding:8px;text-align:right;font-size:10pt;">€ ${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                            <td style="border:1px solid #ddd;padding:8px;text-align:right;font-size:10pt;">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                        </tr>`).join('')}
+                        <tr style="font-weight:bold; background-color:#eff6ff;">
+                            <td colspan="4" style="border:1px solid #ddd;padding:8px;text-align:right;font-size:10pt;">TOTALE COMPLESSIVO</td>
+                            <td style="border:1px solid #ddd;padding:8px;text-align:right;font-size:10pt;">€ ${data.totaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>`;
         }
         
         // --- UI AND EVENT FUNCTIONS ---
 
         async function generateFiles() {
             if (!document.getElementById('fileGenClientName').value.trim()) {
-                alert("Per favore, inserisci il Nome Cliente.");
-                return;
+                alert("Per favore, inserisci il Nome Cliente."); return;
             }
             const btn = document.getElementById('fileGenerateBtn');
             const originalHTML = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = `<svg class="w-5 h-5 mr-3 loading" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Generazione...`;
             
-            // Simulate processing time
             await new Promise(resolve => setTimeout(resolve, 500));
 
             const projectData = {
@@ -247,7 +239,7 @@
             
             generatedFileData = {
                 type: 'offer',
-                name: `Offerta_${projectData.cliente.replace(/[\s\/]/g, '_')}.html`, // Save as .html for easy opening
+                name: `Offerta_${projectData.cliente.replace(/[\s\/]/g, '_')}.html`,
                 content: generateCommercialOffer(projectData)
             };
 
@@ -263,9 +255,7 @@
 
         function displayGeneratedFiles() {
             const filesList = document.getElementById('filesList');
-            filesList.innerHTML = '';
             const file = generatedFileData;
-            
             filesList.innerHTML = `
                 <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
                     <div class="flex items-center mb-3">
@@ -278,26 +268,28 @@
                         <button onclick="copyFileContent(this)" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">Copia per Word</button>
                     </div>
                 </div>`;
-            
             previewFile();
         }
 
+        // *** MODIFIED FUNCTION FOR RELIABLE PREVIEW ***
         function previewFile() {
             const file = generatedFileData;
             const previewContainer = document.getElementById('filesPreview');
             previewContainer.innerHTML = `
-            <div class="bg-white border rounded-lg p-6">
-                <h4 class="font-medium text-gray-800">Anteprima:</h4>
-                <div class="bg-gray-100 p-2 sm:p-4 rounded max-h-96 overflow-y-auto border mt-2">
-                    <iframe srcdoc="${file.content.replace(/"/g, '"')}" class="w-full h-96 border-none"></iframe>
+            <div class="bg-white border rounded-lg p-4 sm:p-6">
+                <h4 class="font-medium text-gray-800 mb-4">Anteprima dell'Offerta:</h4>
+                <div id="preview-content-wrapper" class="bg-gray-50 border rounded max-h-[40rem] overflow-y-auto">
+                    <!-- The generated HTML content is injected directly here -->
                 </div>
             </div>`;
+            document.getElementById('preview-content-wrapper').innerHTML = file.content;
         }
         
         function downloadFile() {
             const file = generatedFileData;
-            // We save it as .html, but the user can then open it and save as .doc from Word.
-            const blob = new Blob([file.content], { type: 'text/html' });
+            // The generated content is now a partial HTML. To make it a valid downloadable file, we wrap it.
+            const fullHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">${generateCommercialOffer({extractedData:{articoli:[]}}).match(/<style>.*?<\/style>/s)[0]}</head><body>${file.content}</body></html>`;
+            const blob = new Blob([fullHtml], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -317,7 +309,7 @@
                 setTimeout(() => { buttonElement.textContent = originalText; }, 2500);
             }).catch(err => {
                 console.error('Errore nella copia:', err);
-                alert('Impossibile copiare il contenuto. Assicurati di usare un browser moderno (Chrome, Edge, Firefox) e che la pagina sia sicura (HTTPS).');
+                alert('Impossibile copiare. Assicurati che il browser sia aggiornato e la pagina sia sicura (HTTPS).');
             });
         }
 
