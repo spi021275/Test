@@ -8,8 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         .loading { animation: spin 2s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -46,7 +46,7 @@
                 <div class="w-full">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">Scegli il tuo modulo</h2>
                     <p class="text-lg text-gray-700 mb-8">Seleziona lo strumento che ti serve per il tuo progetto</p>
-                    
+
                     <div class="grid md:grid-cols-3 gap-6">
                         <!-- Module 1 -->
                         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-blue-300 transition-all">
@@ -78,7 +78,7 @@
                             </button>
                         </div>
 
-                        <!-- Module 3 -->
+                        <!-- Module 3 - UPDATED -->
                         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:border-green-300 transition-all">
                             <svg class="w-10 h-10 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -106,10 +106,10 @@
                     </svg>
                     Torna alla Homepage
                 </button>
-                
+
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Analizza Meeting & Genera Brief DSA</h2>
                 <p class="text-gray-600 mb-8">Trasforma i tuoi appunti del meeting in un brief tecnico strutturato per il team DSA utilizzando l'expertise completa della BU (51 anni esperienza, 823M€ fatturato, 3.850 persone)</p>
-                
+
                 <div class="text-center py-12">
                     <p class="text-gray-500">Modulo 1 - Funzionalità esistente mantenuta</p>
                 </div>
@@ -125,17 +125,17 @@
                     </svg>
                     Torna alla Homepage
                 </button>
-                
+
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Wizard Spazi Collaborativi</h2>
                 <p class="text-gray-600 mb-8">Configura la soluzione tecnologica ottimale per il tuo spazio con analisi AI automatica da foto/planimetrie o inserimento manuale</p>
-                
+
                 <div class="text-center py-12">
                     <p class="text-gray-500">Modulo 2 - Funzionalità esistente mantenuta</p>
                 </div>
             </div>
         </div>
 
-        <!-- File Generator Module -->
+        <!-- File Generator Module - UPDATED -->
         <div id="fileGeneratorSection" class="hidden">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <button onclick="showIntro()" class="inline-flex items-center mb-6 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
@@ -144,12 +144,12 @@
                     </svg>
                     Torna alla Homepage
                 </button>
-                
+
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">Generazione File da Analisi Economica DSA</h2>
                 <p class="text-gray-600 mb-8">Carica il file Excel "Analisi Economica" dal DSA e genera automaticamente offerta commerciale, sintesi dati e file CRM</p>
-                
+
                 <div id="fileGeneratorForm" class="space-y-8">
-                    
+
                     <!-- Dati Base Progetto -->
                     <div class="grid md:grid-cols-3 gap-6">
                         <div>
@@ -178,7 +178,7 @@
                                 <span class="text-xs text-green-600 mt-1">.xlsx, .xlsm, .xls (max 10MB)</span>
                             </div>
                             <input type="file" id="analysisUpload" class="hidden" accept=".xlsx,.xlsm,.xls" onchange="handleAnalysisUpload(event)">
-                            
+
                             <!-- Uploaded File Display -->
                             <div id="uploadedAnalysisFile" class="mt-4 hidden">
                                 <div class="flex items-center justify-between bg-green-100 p-3 rounded-lg">
@@ -195,7 +195,7 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <!-- Excel Data Preview -->
                             <div id="excelDataPreview" class="mt-4 hidden">
                                 <h4 class="font-medium text-gray-800 mb-2">Anteprima Dati Estratti</h4>
@@ -303,12 +303,12 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Files List -->
                     <div id="filesList" class="grid md:grid-cols-3 gap-6">
                         <!-- Generated files will be displayed here -->
                     </div>
-                    
+
                     <!-- File Contents Preview -->
                     <div id="filesPreview" class="space-y-6">
                         <!-- File previews will be displayed here -->
@@ -330,9 +330,9 @@
     </div>
 
     <script>
-        // API Configuration
-        const API_KEY = "AIzaSyDjlVWJIzGCa5CnXbj_nQEj1aG2aHlLwnQ";
-        
+        // API Configuration - REMOVED FOR SECURITY
+        // const API_KEY = "YOUR_API_KEY";
+
         // State management
         let analysisFile = null;
         let extractedData = {};
@@ -371,13 +371,13 @@
             document.getElementById('homeBtn').classList.remove('hidden');
         }
 
-        // File Generator Functions
+        // File Generator Functions - UPDATED
         async function handleAnalysisUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            if (!file.name.toLowerCase().endsWith('.xlsx') && 
-                !file.name.toLowerCase().endsWith('.xlsm') && 
+            if (!file.name.toLowerCase().endsWith('.xlsx') &&
+                !file.name.toLowerCase().endsWith('.xlsm') &&
                 !file.name.toLowerCase().endsWith('.xls')) {
                 alert('Seleziona solo file Excel (.xlsx, .xlsm o .xls)');
                 return;
@@ -390,14 +390,14 @@
 
             try {
                 analysisFile = file;
-                
+
                 // Show file info
                 document.getElementById('analysisFileName').textContent = file.name;
                 document.getElementById('uploadedAnalysisFile').classList.remove('hidden');
-                
+
                 // Process Excel file
                 await processExcelFile(file);
-                
+
             } catch (error) {
                 console.error('Errore nel caricamento del file:', error);
                 alert('Errore nel caricamento del file: ' + error.message);
@@ -408,13 +408,13 @@
             try {
                 const data = await readExcelFile(file);
                 extractedData = extractKeyData(data);
-                
+
                 // Show preview
                 displayExcelPreview(extractedData);
-                
+
                 // Enable generate button
                 document.getElementById('fileGenerateBtn').disabled = false;
-                
+
             } catch (error) {
                 console.error('Errore nell\'elaborazione del file Excel:', error);
                 alert('Errore nell\'elaborazione del file Excel: ' + error.message);
@@ -424,41 +424,42 @@
         function readExcelFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                
+
                 reader.onload = function(e) {
                     try {
                         const data = e.target.result;
-                        const workbook = XLSX.read(data, { 
+                        const workbook = XLSX.read(data, {
                             type: 'binary',
                             cellFormulas: false,
                             cellStyles: false,
                             sheetStubs: true
                         });
-                        
+
                         const result = {};
                         workbook.SheetNames.forEach(sheetName => {
                             const sheet = workbook.Sheets[sheetName];
-                            result[sheetName] = XLSX.utils.sheet_to_json(sheet, { 
+                            result[sheetName] = XLSX.utils.sheet_to_json(sheet, {
                                 header: 1,
                                 defval: '',
                                 raw: false
                             });
                         });
-                        
+
                         resolve(result);
                     } catch (error) {
                         reject(new Error(`Errore nel parsing del file Excel: ${error.message}`));
                     }
                 };
-                
+
                 reader.onerror = function() {
                     reject(new Error('Errore nella lettura del file'));
                 };
-                
+
                 reader.readAsBinaryString(file);
             });
         }
 
+        // *** MODIFIED FUNCTION ***
         function extractKeyData(excelData) {
             const extracted = {
                 cliente: '',
@@ -475,101 +476,51 @@
                 debug: []
             };
 
-            // DEBUG: Mostra tutti i fogli trovati
-            extracted.debug.push(`Fogli trovati: ${Object.keys(excelData).join(', ')}`);
-
-            // Cerca il foglio "Analisi Economica"
             let analisiSheet = null;
-            let sheetName = '';
-            
-            const possibiliNomi = [
-                'Analisi Economica',
-                'analisi economica',
-                'ANALISI ECONOMICA',
-                'Analisi economica',
-                'AnalisiEconomica',
-                'Analisi_Economica'
-            ];
+            const possibiliNomi = ['Analisi Economica', 'analisi economica', 'ANALISI ECONOMICA'];
+            let sheetName = possibiliNomi.find(nome => excelData[nome]) || Object.keys(excelData)[0];
 
-            for (let nome of possibiliNomi) {
-                if (excelData[nome]) {
-                    analisiSheet = excelData[nome];
-                    sheetName = nome;
-                    extracted.debug.push(`Trovato foglio con nome esatto: "${nome}"`);
-                    break;
-                }
-            }
-
-            if (!analisiSheet) {
-                Object.keys(excelData).forEach(name => {
-                    const nameLower = name.toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
-                    if (nameLower.includes('analisi') || nameLower.includes('economic')) {
-                        analisiSheet = excelData[name];
-                        sheetName = name;
-                        extracted.debug.push(`Trovato foglio per contenuto: "${name}"`);
-                    }
-                });
-            }
-
-            if (!analisiSheet && Object.keys(excelData).length > 0) {
-                const primoFoglio = Object.keys(excelData)[0];
-                analisiSheet = excelData[primoFoglio];
-                sheetName = primoFoglio;
-                extracted.debug.push(`Usando primo foglio disponibile: "${primoFoglio}"`);
-                extracted.errori.push(`Foglio "Analisi Economica" non trovato. Usando "${primoFoglio}"`);
-            }
-
-            if (!analisiSheet) {
+            if (sheetName) {
+                analisiSheet = excelData[sheetName];
+            } else {
                 extracted.errori.push('Nessun foglio trovato nel file Excel');
                 return extracted;
             }
 
-            extracted.debug.push(`Foglio selezionato: "${sheetName}" con ${analisiSheet.length} righe`);
-
-            // Definizione colonne (indici da 0) - CORRETTA MAPPATURA
             const colonne = {
-                sezione: 0,           // A - Sezione Descrizione Attività  
-                areaInteresse: 1,     // B - Area di Interesse
-                sottocategoria: 2,    // C - Sottocategoria
-                tipoArticolo: 3,      // D - Tipo Articolo
-                produttore: 4,        // E - Produttore - Vendor
-                codiceArticolo: 5,    // F - Codice Articolo Produttore
-                descrizioneArticolo: 6, // G - Descrizione Articolo
-                quantita: 7,          // H - Q.tà
-                listinoUnitario: 8,   // I - Listino Unitario
-                costoUnitario: 9,     // J - Costo Unitario
-                scontoBase: 10,       // K - Sconto Base (%)
-                scontoAgg1: 11,       // L - Sconto Aggiuntivo 1 (%)
-                scontoAgg2: 12,       // M - Sconto Aggiuntivo 2 (%)
-                costoUnitarioFinale: 13, // N - Costo Unitario
-                costoTotale: 14,      // O - Costo Totale
-                margine: 15,          // P - Margine
-                venditaUnitario: 16,  // Q - Vendita Unitario
-                venditaTotale: 17,    // R - Vendita Totale
-                markup: 18,           // S - MarkUp
-                colonnaT: 19,         // T - Colonna T (PREZZO UNITARIO per offerta)
-                colonnaU: 20,         // U - Colonna U (PREZZO TOTALE per offerta)
-                colonnaV: 21          // V - Colonna V
+                sezione: 0,           // A
+                areaInteresse: 1,     // B
+                sottocategoria: 2,    // C
+                tipoArticolo: 3,      // D
+                produttore: 4,        // E
+                codiceArticolo: 5,    // F
+                descrizioneArticolo: 6, // G
+                quantita: 7,          // H
+                codiceProduttore: 8,  // I (Usato come descrizione per offerta)
+                costoUnitarioJ: 9,    // J
+                quantitaK: 10,        // K (Usato come quantità per offerta)
+                scontoAgg1: 11,       // L
+                scontoAgg2: 12,       // M
+                costoUnitarioFinale: 13, // N
+                costoTotale: 14,      // O
+                margine: 15,          // P
+                venditaUnitarioQ: 16, // Q
+                venditaTotaleR: 17,   // R
+                markup: 18,           // S
+                venditaUnitarioT: 19, // T (Usato come prezzo unitario per offerta)
+                venditaTotaleU: 20,   // U (Usato come prezzo totale per offerta)
+                colonnaV: 21          // V
             };
 
-            // Leggi TUTTE le righe dalla riga 3 che hanno un valore nella colonna J (Costo Unitario)
             for (let i = 2; i < analisiSheet.length; i++) {
                 const row = analisiSheet[i];
-                
                 if (!row || row.length === 0) continue;
-                
-                // CRITERIO: deve avere un valore nella colonna J (Costo Unitario) O nella colonna I (Listino)
-                const costoUnitario = row[colonne.costoUnitario];
-                const listinoUnitario = row[colonne.listinoUnitario];
-                
-                if ((!costoUnitario || costoUnitario === '' || (typeof costoUnitario === 'number' && costoUnitario === 0)) &&
-                    (!listinoUnitario || listinoUnitario === '' || (typeof listinoUnitario === 'number' && listinoUnitario === 0))) {
+
+                const costoUnitarioJ = row[colonne.costoUnitarioJ];
+                if (!costoUnitarioJ || costoUnitarioJ === '' || (typeof costoUnitarioJ === 'number' && costoUnitarioJ === 0)) {
                     continue;
                 }
-                
-                const descrizione = row[colonne.descrizioneArticolo] || `Riga ${i + 1}`;
-                
-                // Estrai tutto con i valori corretti
+
                 const articolo = {
                     riga: i + 1,
                     sezione: row[colonne.sezione] || '',
@@ -578,149 +529,70 @@
                     tipoArticolo: row[colonne.tipoArticolo] || '',
                     produttore: row[colonne.produttore] || '',
                     codiceArticolo: row[colonne.codiceArticolo] || '',
-                    descrizioneArticolo: descrizione.toString().trim(),
+                    descrizioneArticolo: (row[colonne.descrizioneArticolo] || '').toString().trim(),
                     quantita: parseFloat(row[colonne.quantita]) || 0,
-                    listinoUnitario: parseFloat(row[colonne.listinoUnitario]) || 0,
-                    costoUnitario: parseFloat(row[colonne.costoUnitario]) || 0,
-                    scontoBase: parseFloat(row[colonne.scontoBase]) || 0,  // K - per quantità offerta
-                    scontoAgg1: parseFloat(row[colonne.scontoAgg1]) || 0,
-                    scontoAgg2: parseFloat(row[colonne.scontoAgg2]) || 0,
-                    costoUnitarioFinale: parseFloat(row[colonne.costoUnitarioFinale]) || 0,
+                    codiceProduttore: row[colonne.codiceProduttore] || '',
+                    costoUnitarioJ: parseFloat(costoUnitarioJ) || 0,
+                    quantitaK: parseFloat(row[colonne.quantitaK]) || 0,
                     costoTotale: parseFloat(row[colonne.costoTotale]) || 0,
                     margine: parseFloat(row[colonne.margine]) || 0,
-                    venditaUnitario: parseFloat(row[colonne.venditaUnitario]) || 0,
-                    venditaTotale: parseFloat(row[colonne.venditaTotale]) || 0,
-                    markup: parseFloat(row[colonne.markup]) || 0,
-                    colonnaT: parseFloat(row[colonne.colonnaT]) || 0,  // T - prezzo unitario per offerta
-                    colonnaU: parseFloat(row[colonne.colonnaU]) || 0,  // U - prezzo totale per offerta
-                    colonnaV: row[colonne.colonnaV] || ''
+                    venditaUnitarioQ: parseFloat(row[colonne.venditaUnitarioQ]) || 0,
+                    venditaTotaleR: parseFloat(row[colonne.venditaTotaleR]) || 0,
+                    venditaUnitarioT: parseFloat(row[colonne.venditaUnitarioT]) || 0,
+                    venditaTotaleU: parseFloat(row[colonne.venditaTotaleU]) || 0,
                 };
-
                 extracted.articoli.push(articolo);
             }
 
-            // CALCOLA CORRETTAMENTE I TOTALI USANDO LE COLONNE GIUSTE
-            extracted.totaleQuantita = extracted.articoli.reduce((sum, art) => sum + art.quantita, 0);
-            extracted.totaleColonnaI = extracted.articoli.reduce((sum, art) => sum + art.listinoUnitario, 0);
-            extracted.totaleColonnaJ = extracted.articoli.reduce((sum, art) => sum + art.costoUnitario, 0);
-            extracted.totaleColonnaR = extracted.articoli.reduce((sum, art) => sum + art.venditaTotale, 0);
-            extracted.totaleColonnaT = extracted.articoli.reduce((sum, art) => sum + art.colonnaT, 0);
-            extracted.totaleColonnaU = extracted.articoli.reduce((sum, art) => sum + art.colonnaU, 0);
-            extracted.totaleCostoTotale = extracted.articoli.reduce((sum, art) => sum + art.costoTotale, 0);
-
-            // I TOTALI PRINCIPALI per il riepilogo
-            extracted.totaleOfferta = extracted.totaleColonnaU; // Usa colonna U come totale offerta
+            // Calcolo corretto dei totali
+            extracted.totaleQuantita = extracted.articoli.reduce((sum, art) => sum + art.quantitaK, 0);
+            extracted.totaleCostoJ = extracted.articoli.reduce((sum, art) => sum + art.costoUnitarioJ, 0);
+            extracted.totaleVenditaR = extracted.articoli.reduce((sum, art) => sum + art.venditaTotaleR, 0);
+            extracted.totaleVenditaU = extracted.articoli.reduce((sum, art) => sum + art.venditaTotaleU, 0);
             extracted.margineEuro = extracted.articoli.reduce((sum, art) => sum + art.margine, 0);
-            extracted.marginePercentuale = extracted.totaleOfferta > 0 ? 
-                (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
-
-            // Riepilogo per tipo articolo
-            extracted.articoli.forEach(art => {
-                const tipo = art.tipoArticolo || 'Non Specificato';
-                if (!extracted.riepilogoPerTipo[tipo]) {
-                    extracted.riepilogoPerTipo[tipo] = {
-                        quantita: 0,
-                        costoTotale: 0,
-                        venditaTotale: 0,
-                        margine: 0,
-                        articoli: 0
-                    };
-                }
-                extracted.riepilogoPerTipo[tipo].quantita += art.quantita;
-                extracted.riepilogoPerTipo[tipo].costoTotale += art.costoTotale;
-                extracted.riepilogoPerTipo[tipo].venditaTotale += art.colonnaU; // Usa colonna U
-                extracted.riepilogoPerTipo[tipo].margine += art.margine;
-                extracted.riepilogoPerTipo[tipo].articoli += 1;
-            });
-
-            // Riepilogo per sezione
-            extracted.articoli.forEach(art => {
-                const sezione = art.sezione || 'Non Specificato';
-                if (!extracted.riepilogoPerSezione[sezione]) {
-                    extracted.riepilogoPerSezione[sezione] = {
-                        quantita: 0,
-                        costoTotale: 0,
-                        venditaTotale: 0,
-                        margine: 0,
-                        articoli: 0
-                    };
-                }
-                extracted.riepilogoPerSezione[sezione].quantita += art.quantita;
-                extracted.riepilogoPerSezione[sezione].costoTotale += art.costoTotale;
-                extracted.riepilogoPerSezione[sezione].venditaTotale += art.colonnaU; // Usa colonna U
-                extracted.riepilogoPerSezione[sezione].margine += art.margine;
-                extracted.riepilogoPerSezione[sezione].articoli += 1;
-            });
+            extracted.totaleOfferta = extracted.totaleVenditaU; // Usiamo la colonna U come totale offerta
+            extracted.marginePercentuale = extracted.totaleOfferta > 0 ? (extracted.margineEuro / extracted.totaleOfferta * 100) : 0;
+            extracted.totaleListinoI = extracted.articoli.length; // Conteggio articoli
 
             return extracted;
         }
 
+        // *** MODIFIED FUNCTION ***
         function displayExcelPreview(data) {
             const previewContainer = document.getElementById('excelPreviewContent');
-            
             let html = '<div class="space-y-3">';
-            
-            // Errori eventuali
+
             if (data.errori.length > 0) {
-                html += `<div class="bg-red-50 p-3 rounded border border-red-200">`;
-                html += `<strong class="text-red-800">Errori/Avvisi:</strong><br>`;
-                data.errori.forEach(errore => {
-                    html += `• ${errore}<br>`;
-                });
-                html += `</div>`;
+                html += `<div class="bg-red-50 p-3 rounded border border-red-200"><strong class="text-red-800">Errori/Avvisi:</strong><br>${data.errori.join('<br>')}</div>`;
             }
-            
-            // Dati principali estratti - CORRETTI
+
             html += `<div class="bg-blue-50 p-3 rounded border">`;
             html += `<strong>Analisi Economica DSA - Riepiloghi Totali:</strong><br>`;
             html += `Articoli con Costo (J): <strong>${data.articoli.length}</strong><br>`;
-            html += `Totale Quantità: <strong>${data.totaleQuantita.toLocaleString('it-IT')}</strong><br>`;
-            html += `Totale Listino (I): <strong>€${data.totaleColonnaI.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
-            html += `Totale Costi (J): <strong>€${data.totaleColonnaJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
-            html += `Totale Vendita (R): <strong>€${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
-            html += `Totale Colonna T: <strong>€${data.totaleColonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
-            html += `Totale Colonna U: <strong>€${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Quantità (K): <strong>${data.totaleQuantita.toLocaleString('it-IT')}</strong><br>`;
+            html += `Totale Costi (J): <strong>€${data.totaleCostoJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
+            html += `Totale Vendita (U): <strong>€${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong><br>`;
             html += `Margine Totale: <strong>€${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</strong><br>`;
-            html += `Fogli nel File: ${data.sheets.join(', ')}`;
             html += `</div>`;
-            
-            if (data.articoli.length === 0) {
-                html += `<div class="bg-orange-50 p-3 rounded border border-orange-200">`;
-                html += `<strong class="text-orange-800">Nessun articolo estratto</strong><br>`;
-                html += `Verifica che i dati inizino dalla riga 3 e abbiano valori nelle colonne I o J`;
-                html += `</div>`;
-            }
-            
-            // Riepilogo per tipo articolo
-            if (Object.keys(data.riepilogoPerTipo).length > 0) {
-                html += `<div class="bg-green-50 p-3 rounded border">`;
-                html += `<strong>Riepilogo per Tipo Articolo:</strong><br>`;
-                Object.entries(data.riepilogoPerTipo).forEach(([tipo, totali]) => {
-                    html += `• <strong>${tipo}</strong>: ${totali.articoli} articoli, €${totali.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
-                });
-                html += `</div>`;
-            }
-            
-            // Esempio articoli con mappatura corretta
+
             if (data.articoli.length > 0) {
                 html += `<div class="bg-green-50 p-3 rounded border">`;
-                html += `<strong>Primi Articoli Estratti (mappatura corretta per offerta):</strong><br>`;
+                html += `<strong>Primi Articoli Estratti (per Offerta):</strong><br>`;
                 data.articoli.slice(0, 3).forEach(art => {
-                    html += `• <strong>${art.descrizioneArticolo}</strong><br>`;
-                    html += `&nbsp;&nbsp;Qty K: ${art.scontoBase}, Descr I: €${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
-                    html += `&nbsp;&nbsp;Prezzo Unit T: €${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}, Totale U: €${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br><br>`;
+                    html += `• <strong>${art.codiceProduttore}</strong><br>`;
+                    html += `  Qty(K): ${art.quantitaK}, Prezzo(T): €${art.venditaUnitarioT.toLocaleString('it-IT', {minimumFractionDigits: 2})}, Totale(U): €${art.venditaTotaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}<br>`;
                 });
                 if (data.articoli.length > 3) {
                     html += `... e altri ${data.articoli.length - 3} articoli`;
                 }
                 html += `</div>`;
             }
-            
+
             html += '</div>';
-            
             previewContainer.innerHTML = html;
             document.getElementById('excelDataPreview').classList.remove('hidden');
         }
+
 
         function removeAnalysisFile() {
             analysisFile = null;
@@ -749,12 +621,7 @@
 
             const btn = document.getElementById('fileGenerateBtn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = `
-                <svg class="w-5 h-5 mr-3 loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Generazione in corso...
-            `;
+            btn.innerHTML = `<svg class="w-5 h-5 mr-3 loading" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Generazione in corso...`;
             btn.disabled = true;
 
             try {
@@ -774,39 +641,20 @@
 
                 if (generateOffer) {
                     const offerContent = await generateCommercialOffer(projectData);
-                    generatedFilesData.push({
-                        type: 'offer',
-                        name: `Offerta_Commerciale_${clientName.replace(/\s+/g, '_')}.html`,
-                        content: offerContent,
-                        icon: 'document',
-                        color: 'blue'
-                    });
+                    generatedFilesData.push({ type: 'offer', name: `Offerta_Commerciale_${clientName.replace(/\s+/g, '_')}.docx`, content: offerContent, icon: 'document', color: 'blue' });
                 }
 
                 if (generateSummary) {
                     const summaryContent = await generateExecutiveSummary(projectData);
-                    generatedFilesData.push({
-                        type: 'summary',
-                        name: `Sintesi_Progetto_${clientName.replace(/\s+/g, '_')}.html`,
-                        content: summaryContent,
-                        icon: 'document-text',
-                        color: 'purple'
-                    });
+                    generatedFilesData.push({ type: 'summary', name: `Sintesi_Progetto_${clientName.replace(/\s+/g, '_')}.pdf`, content: summaryContent, icon: 'document-text', color: 'purple' });
                 }
 
                 if (generateCRM) {
                     const crmContent = await generateCRMFile(projectData);
-                    generatedFilesData.push({
-                        type: 'crm',
-                        name: `CRM_Data_${clientName.replace(/\s+/g, '_')}.xlsx`,
-                        content: crmContent,
-                        icon: 'table',
-                        color: 'green'
-                    });
+                    generatedFilesData.push({ type: 'crm', name: `CRM_Data_${clientName.replace(/\s+/g, '_')}.xlsx`, content: crmContent, icon: 'table', color: 'green' });
                 }
 
                 displayGeneratedFiles();
-                
                 document.getElementById('fileGeneratorForm').classList.add('hidden');
                 document.getElementById('generatedFiles').classList.remove('hidden');
                 document.getElementById('generatedFiles').classList.add('fade-in');
@@ -819,203 +667,75 @@
             }
         }
 
+        // *** MODIFIED FUNCTION ***
         async function generateCommercialOffer(projectData) {
             const data = projectData.extractedData;
             const dataOdierna = new Date().toLocaleDateString('it-IT');
-            
-            // MAPPATURA CORRETTA: K=quantità, I=descrizione, T=prezzo unitario, U=prezzo totale
+
             const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.4; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .logo { font-size: 24px; font-weight: bold; color: #1e40af; }
-        .date-location { text-align: left; margin: 20px 0; }
-        .recipient { margin: 20px 0; }
-        .object { font-weight: bold; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-        th { background-color: #f0f0f0; font-weight: bold; }
-        .total-row { font-weight: bold; font-size: 16px; }
-        .conditions-table { margin: 30px 0; }
-        .conditions-table td { border: 1px solid #333; padding: 10px; }
-        .signature { margin-top: 50px; }
-        .amount { text-align: right; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="logo">VAR GROUP S.P.A.</div>
-        <div>Via della Liberazione, 15 - 20098 San Giuliano Milanese (MI)</div>
-        <div>Tel. +39 02 2760141 - Fax +39 02 27604206</div>
-    </div>
-
-    <div class="date-location">
-        Cormano (MI), ${dataOdierna}
-    </div>
-
-    <div class="recipient">
-        <strong>Spett.le</strong><br>
-        <strong>${projectData.cliente.toUpperCase()}</strong><br>
-        [Indirizzo Cliente]<br>
-        [CAP, Città]
-    </div>
-
-    <div class="object">
-        <strong>Oggetto: ${projectData.projectCode || 'Refresh tecnologico'}</strong>
-    </div>
-
-    <p>Con riferimento ai colloqui intercorsi vi sottoponiamo la presente proposta relativa al progetto in oggetto.</p>
-
-    <h3>SOLUZIONE PROPOSTA</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Q.tà</th>
-                <th>Descrizione</th>
-                <th>Prezzo unitario</th>
-                <th>Prezzo totale</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${data.articoli.map(art => `
-            <tr>
-                <td>${art.scontoBase}</td>
-                <td>€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.colonnaT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-            </tr>
-            `).join('')}
-            <tr class="total-row">
-                <td colspan="3" style="text-align: right;"><strong>TOTALE COMPLESSIVO:</strong></td>
-                <td class="amount"><strong>€ ${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h3>CONDIZIONI DI FORNITURA</h3>
-    <table class="conditions-table">
-        <tr>
-            <td><strong>Consegna</strong></td>
-            <td>Da concordare</td>
-        </tr>
-        <tr>
-            <td><strong>Iva</strong></td>
-            <td>Esclusa</td>
-        </tr>
-        <tr>
-            <td><strong>Validità Offerta</strong></td>
-            <td>${projectData.offerExpiry || '30 giorni dalla data della presente offerta'}</td>
-        </tr>
-        <tr>
-            <td><strong>Spese di trasporto</strong></td>
-            <td>Incluse</td>
-        </tr>
-        <tr>
-            <td><strong>Modalità e Termini di Pagamento</strong></td>
-            <td>${projectData.paymentTerms || 'Da concordare'}</td>
-        </tr>
-    </table>
-
-    <div class="signature">
-        <p>Siamo a Vostra disposizione per qualsiasi chiarimento tecnico o commerciale e cogliamo l'occasione per porgervi i nostri migliori saluti.</p>
-        
-        <p><strong>Var Group S.p.A.</strong></p>
-        <p><em>${projectData.salesManager || 'Sales Manager'}</em></p>
-        
-        <br><br>
-        <p><strong>PER ACCETTAZIONE OFFERTA PROT. _______________________</strong></p>
-    </div>
-</body>
-</html>`;
-
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;margin:40px;line-height:1.4;}.header{text-align:center;margin-bottom:30px;}.logo{font-size:24px;font-weight:bold;color:#1e40af;}.date-location{text-align:left;margin:20px 0;}.recipient{margin:20px 0;}.object{font-weight:bold;margin:20px 0;}table{width:100%;border-collapse:collapse;margin:20px 0;}th,td{border:1px solid #333;padding:8px;text-align:left;}th{background-color:#f0f0f0;font-weight:bold;}.total-row{font-weight:bold;font-size:16px;}.conditions-table{margin:30px 0;}.conditions-table td{border:1px solid #333;padding:10px;}.signature{margin-top:50px;}.amount{text-align:right;}</style></head><body>
+            <div class="header"><div class="logo">VAR GROUP S.P.A.</div><div>Via della Liberazione, 15 - 20098 San Giuliano Milanese (MI)</div><div>Tel. +39 02 2760141 - Fax +39 02 27604206</div></div>
+            <div class="date-location">Cormano (MI), ${dataOdierna}</div>
+            <div class="recipient"><strong>Spett.le</strong><br><strong>${projectData.cliente.toUpperCase()}</strong><br>[Indirizzo Cliente]<br>[CAP, Città]</div>
+            <div class="object"><strong>Oggetto: ${projectData.projectCode || 'Refresh tecnologico'}</strong></div>
+            <p>Con riferimento ai colloqui intercorsi vi sottoponiamo la presente proposta relativa al progetto in oggetto.</p>
+            <h3>SOLUZIONE PROPOSTA</h3>
+            <table><thead><tr><th>Q.tà</th><th>Descrizione</th><th>Prezzo unitario</th><th>Prezzo totale</th></tr></thead>
+            <tbody>
+                ${data.articoli.map(art => `
+                <tr>
+                    <td>${art.quantitaK}</td>
+                    <td>${art.codiceProduttore}</td>
+                    <td class="amount">€ ${art.venditaUnitarioT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                    <td class="amount">€ ${art.venditaTotaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                </tr>`).join('')}
+                <tr class="total-row"><td colspan="3" style="text-align: right;"><strong>TOTALE COMPLESSIVO:</strong></td><td class="amount"><strong>€ ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td></tr>
+            </tbody></table>
+            <h3>CONDIZIONI DI FORNITURA</h3>
+            <table class="conditions-table">
+                <tr><td><strong>Consegna</strong></td><td>Da concordare</td></tr>
+                <tr><td><strong>Iva</strong></td><td>Esclusa</td></tr>
+                <tr><td><strong>Validità Offerta</strong></td><td>${projectData.offerExpiry || '30 giorni dalla data della presente offerta'}</td></tr>
+                <tr><td><strong>Spese di trasporto</strong></td><td>Incluse</td></tr>
+                <tr><td><strong>Modalità e Termini di Pagamento</strong></td><td>${projectData.paymentTerms || 'Da concordare'}</td></tr>
+            </table>
+            <div class="signature"><p>Siamo a Vostra disposizione per qualsiasi chiarimento tecnico o commerciale e cogliamo l'occasione per porgervi i nostri migliori saluti.</p><p><strong>Var Group S.p.A.</strong></p><p><em>${projectData.salesManager || 'Sales Manager'}</em></p><br><br><p><strong>PER ACCETTAZIONE OFFERTA PROT. _______________________</strong></p></div>
+            </body></html>`;
             return htmlContent;
         }
 
+        // *** MODIFIED FUNCTION ***
         async function generateExecutiveSummary(projectData) {
             const data = projectData.extractedData;
-            
-            // Sintesi con colonna I per articolo
             const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.4; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e40af; padding-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-        th { background-color: #1e40af; color: white; font-weight: bold; }
-        .amount { text-align: right; }
-        .total-row { font-weight: bold; background-color: #f0f8ff; }
-        .summary { background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>SINTESI ECONOMICA</h1>
-        <h2>${projectData.cliente}</h2>
-        <p>Data: ${new Date().toLocaleDateString('it-IT')} | Progetto: ${projectData.projectCode || 'N/A'}</p>
-    </div>
-
-    <div class="summary">
-        <h3>Riepilogo Progetto</h3>
-        <p><strong>Totale Offerta:</strong> € ${data.totaleOfferta.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
-        <p><strong>Margine:</strong> € ${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</p>
-        <p><strong>Articoli:</strong> ${data.articoli.length}</p>
-    </div>
-
-    <h3>Dettaglio Economico</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Articolo (Colonna I)</th>
-                <th>Listino Unitario (I)</th>
-                <th>Costo Unitario (J)</th>
-                <th>Vendita Totale (R)</th>
-                <th>Colonna U</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${data.articoli.map((art, index) => `
-            <tr>
-                <td>€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.listinoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.costoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.venditaTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                <td class="amount">€ ${art.colonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-            </tr>
-            `).join('')}
-            <tr class="total-row">
-                <td><strong>TOTALI</strong></td>
-                <td class="amount"><strong>€ ${data.totaleColonnaI.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td class="amount"><strong>€ ${data.totaleColonnaJ.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td class="amount"><strong>€ ${data.totaleColonnaR.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                <td class="amount"><strong>€ ${data.totaleColonnaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="summary">
-        <h3>Note</h3>
-        <p>Sintesi economica estratta automaticamente dall'Analisi Economica DSA.</p>
-        <p>Documento generato il: ${new Date().toLocaleString('it-IT')}</p>
-        ${projectData.commercialNotes ? `<p><strong>Note commerciali:</strong> ${projectData.commercialNotes}</p>` : ''}
-    </div>
-</body>
-</html>`;
-
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;margin:40px;line-height:1.4;}.header{text-align:center;margin-bottom:30px;border-bottom:2px solid #1e40af;padding-bottom:20px;}table{width:100%;border-collapse:collapse;margin:20px 0;}th,td{border:1px solid #333;padding:8px;text-align:center;}th{background-color:#1e40af;color:white;font-weight:bold;}.amount{text-align:right;}.total-row{font-weight:bold;background-color:#f0f8ff;}.summary{background-color:#f9f9f9;padding:20px;margin:20px 0;border-radius:5px;}</style></head><body>
+            <div class="header"><h1>SINTESI ECONOMICA</h1><h2>${projectData.cliente}</h2><p>Data: ${new Date().toLocaleDateString('it-IT')} | Progetto: ${projectData.projectCode || 'N/A'}</p></div>
+            <div class="summary"><h3>Riepilogo Progetto</h3><p><strong>Totale Offerta (U):</strong> € ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p><p><strong>Margine:</strong> € ${data.margineEuro.toLocaleString('it-IT', {minimumFractionDigits: 2})} (${data.marginePercentuale.toFixed(2)}%)</p><p><strong>Articoli:</strong> ${data.articoli.length}</p></div>
+            <h3>Dettaglio Economico</h3>
+            <table><thead><tr><th>Articolo (I)</th><th>Quantità (K)</th><th>Prezzo Unitario (T)</th><th>Prezzo Totale (U)</th></tr></thead>
+            <tbody>
+                ${data.articoli.map(art => `
+                <tr>
+                    <td>${art.codiceProduttore}</td>
+                    <td class="amount">${art.quantitaK.toLocaleString('it-IT')}</td>
+                    <td class="amount">€ ${art.venditaUnitarioT.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                    <td class="amount">€ ${art.venditaTotaleU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                </tr>`).join('')}
+                <tr class="total-row">
+                    <td><strong>TOTALI</strong></td>
+                    <td class="amount"><strong>${data.totaleQuantita.toLocaleString('it-IT')}</strong></td>
+                    <td></td>
+                    <td class="amount"><strong>€ ${data.totaleVenditaU.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                </tr>
+            </tbody></table>
+            <div class="summary"><h3>Note</h3><p>Sintesi economica estratta automaticamente dall'Analisi Economica DSA.</p>${projectData.commercialNotes ? `<p><strong>Note commerciali:</strong> ${projectData.commercialNotes}</p>` : ''}</div>
+            </body></html>`;
             return htmlContent;
         }
+
 
         async function generateCRMFile(projectData) {
             const data = projectData.extractedData;
-            
             const crmData = {
                 cliente: projectData.cliente,
                 opportunita: `MW_${projectData.projectCode}_${new Date().getFullYear()}`,
@@ -1029,31 +749,15 @@
                 priorita: projectData.projectPriority,
                 stato: 'Proposta Inviata',
                 articoliTotali: data.articoli.length,
-                sezioniCoperte: Object.keys(data.riepilogoPerSezione).length,
                 noteCommerciali: projectData.commercialNotes,
-                contattiCliente: projectData.clientContacts,
-                tecnologia: data.riepilogoPerTipo['Tecnologia']?.venditaTotale || 0,
-                servizio: data.riepilogoPerTipo['Servizio']?.venditaTotale || 0,
-                manutenzione: data.riepilogoPerTipo['Manutenzione']?.venditaTotale || 0,
-                licenze: data.riepilogoPerTipo['Sottoscrizione Licenza']?.venditaTotale || 0,
-                altro: data.riepilogoPerTipo['Altro']?.venditaTotale || 0,
-                sezioniPrincipali: Object.entries(data.riepilogoPerSezione)
-                    .sort((a, b) => b[1].venditaTotale - a[1].venditaTotale)
-                    .slice(0, 5)
-                    .map(([nome, totali]) => ({
-                        nome: nome,
-                        valore: totali.venditaTotale,
-                        articoli: totali.articoli
-                    }))
+                contattiCliente: projectData.clientContacts
             };
-
             return JSON.stringify(crmData, null, 2);
         }
 
+        // *** MODIFIED FUNCTION ***
         function displayGeneratedFiles() {
             const filesList = document.getElementById('filesList');
-            const filesPreview = document.getElementById('filesPreview');
-            
             let filesHTML = '';
             generatedFilesData.forEach((file, index) => {
                 const iconPath = getIconPath(file.icon);
@@ -1063,34 +767,26 @@
                             ${iconPath}
                             <span class="font-medium text-${file.color}-800 ml-2">${getFileTypeLabel(file.type)}</span>
                         </div>
-                        <p class="text-sm text-gray-700 mb-3">${file.name}</p>
-                        <div class="flex gap-2">
-                            <button onclick="downloadFile(${index})" class="flex-1 px-3 py-2 bg-${file.color}-600 text-white text-xs rounded hover:bg-${file.color}-700">
-                                Download
-                            </button>
-                            <button onclick="copyFileContent(${index})" class="flex-1 px-3 py-2 bg-gray-600 text-white text-xs rounded hover:bg-gray-700">
-                                Copia
-                            </button>
-                            <button onclick="previewFile(${index})" class="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
-                                Anteprima
-                            </button>
+                        <p class="text-sm text-gray-700 mb-3 break-all">${file.name}</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="downloadFile(${index})" class="col-span-1 px-3 py-2 bg-${file.color}-600 text-white text-xs rounded hover:bg-${file.color}-700">Download</button>
+                            <button onclick="previewFile(${index})" class="col-span-1 px-3 py-2 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">Anteprima</button>
+                            <button onclick="copyFileContent(${index}, this)" class="col-span-1 px-3 py-2 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">Copia</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-            
             filesList.innerHTML = filesHTML;
-            
             if (generatedFilesData.length > 0) {
-                setTimeout(() => previewFile(0), 500);
+                setTimeout(() => previewFile(0), 100);
             }
         }
+
 
         function getIconPath(iconType) {
             const icons = {
                 'document': `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`,
                 'document-text': `<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`,
-                'table': `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h12a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg>`
+                'table': `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h12a1 1 0 011 1v16a1 1 0 01-1-1H4a1 1 0 01-1-1z"></path></svg>`
             };
             return icons[iconType] || icons['document'];
         }
@@ -1098,7 +794,7 @@
         function getFileTypeLabel(type) {
             const labels = {
                 'offer': 'Offerta Commerciale',
-                'summary': 'Sintesi Progetto', 
+                'summary': 'Sintesi Progetto',
                 'crm': 'Dati CRM'
             };
             return labels[type] || type;
@@ -1106,9 +802,8 @@
 
         function downloadFile(index) {
             const file = generatedFilesData[index];
-            
             let mimeType, dataUrl;
-            
+
             if (file.type === 'crm') {
                 const ws = XLSX.utils.json_to_sheet([JSON.parse(file.content)]);
                 const wb = XLSX.utils.book_new();
@@ -1120,7 +815,7 @@
                 const blob = new Blob([file.content], { type: 'text/html' });
                 dataUrl = URL.createObjectURL(blob);
             }
-            
+
             const a = document.createElement('a');
             a.href = dataUrl;
             a.download = file.name;
@@ -1128,70 +823,49 @@
             URL.revokeObjectURL(dataUrl);
         }
 
-        function copyFileContent(index) {
+        // *** NEW FUNCTION ***
+        function copyFileContent(index, buttonElement) {
             const file = generatedFilesData[index];
-            
             navigator.clipboard.writeText(file.content).then(() => {
-                // Show success feedback
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Copiato!';
-                btn.classList.add('bg-green-600');
-                btn.classList.remove('bg-gray-600');
-                
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = 'Copiato!';
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('bg-green-600');
-                    btn.classList.add('bg-gray-600');
+                    buttonElement.textContent = originalText;
                 }, 2000);
             }).catch(err => {
-                alert('Errore nella copia: ' + err.message);
+                alert('Errore nella copia del file: ' + err);
             });
         }
+
 
         function previewFile(index) {
             const file = generatedFilesData[index];
             const previewContainer = document.getElementById('filesPreview');
-            
+
             let previewHTML = `
                 <div class="bg-white border rounded-lg p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h4 class="font-medium text-gray-800">Anteprima: ${file.name}</h4>
-                        <div class="flex gap-2">
-                            <button onclick="copyFileContent(${index})" class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700">
-                                Copia Contenuto
-                            </button>
-                            <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                                Scarica File
-                            </button>
-                        </div>
+                        <button onclick="downloadFile(${index})" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            Scarica File
+                        </button>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto border">
-            `;
-            
+                    <div class="bg-gray-50 p-4 rounded max-h-96 overflow-y-auto border">`;
+
             if (file.type === 'crm') {
-                try {
-                    const data = JSON.parse(file.content);
-                    previewHTML += '<pre class="text-sm font-mono">' + JSON.stringify(data, null, 2) + '</pre>';
-                } catch (e) {
-                    previewHTML += '<p class="text-red-600">Errore nel parsing JSON del file CRM</p>';
-                }
+                previewHTML += '<pre class="text-sm font-mono">' + JSON.stringify(JSON.parse(file.content), null, 2) + '</pre>';
             } else {
                 const cleanContent = file.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-                previewHTML += `<div class="prose max-w-none">${cleanContent.substring(0, 3000)}${file.content.length > 3000 ? '<p><em>... contenuto troncato per anteprima ...</em></p>' : ''}</div>`;
+                previewHTML += `<div class="prose max-w-none">${cleanContent.substring(0, 5000)}${file.content.length > 5000 ? '<p><em>... contenuto troncato per anteprima ...</em></p>' : ''}</div>`;
             }
-            
-            previewHTML += `
-                    </div>
-                </div>
-            `;
-            
+
+            previewHTML += `</div></div>`;
             previewContainer.innerHTML = previewHTML;
         }
 
         function downloadAllFiles() {
             generatedFilesData.forEach((file, index) => {
-                setTimeout(() => downloadFile(index), index * 1000);
+                setTimeout(() => downloadFile(index), index * 300);
             });
         }
 
@@ -1204,27 +878,21 @@
             document.getElementById('offerExpiry').value = '';
             document.getElementById('paymentTerms').value = '';
             document.getElementById('projectPriority').value = 'standard';
-            
             document.getElementById('generateOffer').checked = true;
             document.getElementById('generateSummary').checked = true;
             document.getElementById('generateCRM').checked = true;
-            
             removeAnalysisFile();
             generatedFilesData = [];
-            
             document.getElementById('fileGeneratorForm').classList.remove('hidden');
             document.getElementById('generatedFiles').classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             showIntro();
-            
             document.getElementById('homeBtn').addEventListener('click', showIntro);
-            
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 30);
             document.getElementById('offerExpiry').value = tomorrow.toISOString().split('T')[0];
-            
             document.getElementById('fileGenerateBtn').disabled = true;
         });
     </script>
