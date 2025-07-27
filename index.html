@@ -322,8 +322,9 @@
          * hiding the results and showing the upload form again.
          */
         function resetFileGenerator() {
-            // 1. Reset all form fields (client name, project code)
-            document.getElementById('fileGeneratorForm').reset();
+            // 1. Reset input field values manually
+            document.getElementById('fileGenClientName').value = '';
+            document.getElementById('projectCode').value = '';
             
             // 2. Clear file input and related variables
             removeAnalysisFile();
