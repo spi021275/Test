@@ -31,6 +31,7 @@
     <div id="app" class="max-w-7xl mx-auto px-4 py-12">
         <div id="fileGeneratorSection">
             <div class="bg-white rounded-xl shadow-lg p-8">
+                <!-- FORM SECTION -->
                 <div id="fileGeneratorForm" class="space-y-8">
                     <!-- Dati Progetto -->
                     <div class="grid md:grid-cols-2 gap-6">
@@ -72,7 +73,7 @@
                     </div>
                 </div>
 
-                <!-- Generated Files Display -->
+                <!-- RESULTS SECTION -->
                 <div id="generatedFiles" class="hidden space-y-6 mt-8">
                     <h3 class="text-2xl font-bold text-gray-800">Offerta Generata</h3>
                     <div id="filesList">
@@ -82,7 +83,6 @@
                         <!-- File preview will be displayed here -->
                     </div>
                     <div class="text-center">
-                         <!-- *** MODIFIED BUTTON TEXT *** -->
                          <button onclick="resetFileGenerator()" class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-lg hover:bg-gray-400">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                             Torna Indietro (Nuova Offerta)
@@ -317,12 +317,23 @@
             document.getElementById('fileGenerateBtn').disabled = true;
         }
         
+        /**
+         * This function resets the view to the initial state,
+         * hiding the results and showing the upload form again.
+         */
         function resetFileGenerator() {
+            // 1. Reset all form fields (client name, project code)
             document.getElementById('fileGeneratorForm').reset();
+            
+            // 2. Clear file input and related variables
             removeAnalysisFile();
             generatedFileData = null;
-            document.getElementById('fileGeneratorForm').classList.remove('hidden');
+            
+            // 3. Hide the results section
             document.getElementById('generatedFiles').classList.add('hidden');
+            
+            // 4. Show the form section again
+            document.getElementById('fileGeneratorForm').classList.remove('hidden');
         }
 
         // Initialize
@@ -331,4 +342,4 @@
         });
     </script>
 </body>
-</html>```
+</html>
